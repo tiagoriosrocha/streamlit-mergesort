@@ -1,0 +1,65 @@
+//https://dreampuf.github.io/GraphvizOnline/?engine=dot#digraph%20MergeBubbleHibrido%20%7B%0A%20%20%20%20%2F%2F%20Configura%C3%A7%C3%B5es%20Gerais%0A%20%20%20%20layout%3Ddot%3B%0A%20%20%20%20rankdir%3DTB%3B%20%2F%2F%20De%20Cima%20para%20Baixo%20(Top%20to%20Bottom)%0A%20%20%20%20node%20%5Bfontname%3D%22Arial%22%2C%20style%3Dfilled%2C%20fillcolor%3D%22gray95%22%2C%20shape%3Drecord%5D%3B%0A%20%20%20%20edge%20%5Bfontname%3D%22Arial%22%2C%20fontsize%3D10%5D%3B%0A%0A%20%20%20%20%2F%2F%201.%20N%C3%B3s%20da%20%C3%81rvore%20de%20Divis%C3%A3o%0A%20%20%20%20n15%20%5Blabel%3D%22Array%20n%3D15%22%5D%3B%0A%20%20%20%20n7%20%20%5Blabel%3D%22Array%20n%3D7%22%5D%3B%0A%20%20%20%20n8%20%20%5Blabel%3D%22Array%20n%3D8%22%5D%3B%0A%20%20%20%20n3%20%20%5Blabel%3D%22Array%20n%3D3%22%5D%3B%0A%20%20%20%20n4_1%20%5Blabel%3D%22Array%20n%3D4%22%5D%3B%0A%20%20%20%20n4_2%20%5Blabel%3D%22Array%20n%3D4%22%5D%3B%0A%20%20%20%20n4_3%20%5Blabel%3D%22Array%20n%3D4%22%5D%3B%0A%0A%20%20%20%20%2F%2F%202.%20N%C3%B3s%20de%20A%C3%A7%C3%A3o%20(Casos%20Base%20da%20Recurs%C3%A3o)%0A%20%20%20%20b1%20%5Blabel%3D%22BUBBLE%20SORT!%22%2C%20shape%3Dbox%2C%20style%3Dfilled%2C%20fillcolor%3D%22tomato%22%5D%3B%0A%20%20%20%20b2%20%5Blabel%3D%22BUBBLE%20SORT!%22%2C%20shape%3Dbox%2C%20style%3Dfilled%2C%20fillcolor%3D%22tomato%22%5D%3B%0A%20%20%20%20b3%20%5Blabel%3D%22BUBBLE%20SORT!%22%2C%20shape%3Dbox%2C%20style%3Dfilled%2C%20fillcolor%3D%22tomato%22%5D%3B%0A%20%20%20%20b4%20%5Blabel%3D%22BUBBLE%20SORT!%22%2C%20shape%3Dbox%2C%20style%3Dfilled%2C%20fillcolor%3D%22tomato%22%5D%3B%0A%0A%20%20%20%20%2F%2F%203.%20N%C3%B3s%20de%20Combina%C3%A7%C3%A3o%20(Merge)%0A%20%20%20%20m1%20%5Blabel%3D%22Merge%5Cn(Ordena%20n%3D7)%22%2C%20shape%3Ddiamond%2C%20style%3Dfilled%2C%20fillcolor%3D%22skyblue%22%5D%3B%0A%20%20%20%20m2%20%5Blabel%3D%22Merge%5Cn(Ordena%20n%3D8)%22%2C%20shape%3Ddiamond%2C%20style%3Dfilled%2C%20fillcolor%3D%22skyblue%22%5D%3B%0A%20%20%20%20m_final%20%5Blabel%3D%22Array%20Final%20Ordenado%20(n%3D15)%22%2C%20shape%3Dbox%2C%20style%3Dfilled%2C%20fillcolor%3D%22palegreen%22%5D%3B%0A%0A%20%20%20%20%2F%2F%20---%20Arestas%20(Fluxo%20do%20Algoritmo)%20---%0A%0A%20%20%20%20%2F%2F%204.%20Fluxo%20de%20Divis%C3%A3o%20(Chamadas%20Recursivas)%0A%20%20%20%20n15%20-%3E%20n7%20%20%5Blabel%3D%22%20N%20%3E%206%20(Divide)%22%5D%3B%0A%20%20%20%20n15%20-%3E%20n8%20%20%5Blabel%3D%22%20N%20%3E%206%20(Divide)%22%5D%3B%0A%20%20%20%20%0A%20%20%20%20n7%20%20-%3E%20n3%20%20%20%5Blabel%3D%22%20N%20%3C%3D%206%22%5D%3B%0A%20%20%20%20n7%20%20-%3E%20n4_1%20%5Blabel%3D%22%20N%20%3C%3D%206%22%5D%3B%0A%20%20%20%20%0A%20%20%20%20n8%20%20-%3E%20n4_2%20%5Blabel%3D%22%20N%20%3C%3D%206%22%5D%3B%0A%20%20%20%20n8%20%20-%3E%20n4_3%20%5Blabel%3D%22%20N%20%3C%3D%206%22%5D%3B%0A%0A%20%20%20%20%2F%2F%205.%20Atingindo%20o%20Caso%20Base%20(Chamada%20do%20Bubble%20Sort)%0A%20%20%20%20n3%20%20%20-%3E%20b1%3B%0A%20%20%20%20n4_1%20-%3E%20b2%3B%0A%20%20%20%20n4_2%20-%3E%20b3%3B%0A%20%20%20%20n4_3%20-%3E%20b4%3B%0A%20%20%20%20%0A%20%20%20%20%2F%2F%20---%20Alinhamento%20de%20Ranks%20(N%C3%8DVEIS)%20---%0A%20%20%20%20%2F%2F%20Adicionamos%20esta%20linha%20para%20for%C3%A7ar%20o%20alinhamento%0A%20%20%20%20%7B%20rank%3Dsame%3B%20n3%3B%20n4_1%3B%20n4_2%3B%20n4_3%20%7D%0A%20%20%20%20%7B%20rank%3Dsame%3B%20b1%3B%20b2%3B%20b3%3B%20b4%20%7D%0A%20%20%20%20%7B%20rank%3Dsame%3B%20m1%3B%20m2%20%7D%0A%0A%20%20%20%20%2F%2F%206.%20Fluxo%20de%20Combina%C3%A7%C3%A3o%20(Merge)%0A%20%20%20%20b1%20-%3E%20m1%3B%0A%20%20%20%20b2%20-%3E%20m1%3B%0A%20%20%20%20%0A%20%20%20%20b3%20-%3E%20m2%3B%0A%20%20%20%20b4%20-%3E%20m2%3B%0A%20%20%20%20%0A%20%20%20%20m1%20-%3E%20m_final%20%5Blabel%3D%22Merge%22%5D%3B%0A%20%20%20%20m2%20-%3E%20m_final%20%5Blabel%3D%22Merge%22%5D%3B%0A%20%20%20%20%0A%20%20%20%20%2F%2F%20Aresta%20invis%C3%ADvel%20REMOVIDA%20para%20um%20layout%20mais%20natural%0A%7D
+
+digraph MergeBubbleHibrido {
+    // Configurações Gerais
+    layout=dot;
+    rankdir=TB; // De Cima para Baixo (Top to Bottom)
+    node [fontname="Arial", style=filled, fillcolor="gray95", shape=record];
+    edge [fontname="Arial", fontsize=10];
+
+    // 1. Nós da Árvore de Divisão
+    n15 [label="Array n=15"];
+    n7  [label="Array n=7"];
+    n8  [label="Array n=8"];
+    n3  [label="Array n=3"];
+    n4_1 [label="Array n=4"];
+    n4_2 [label="Array n=4"];
+    n4_3 [label="Array n=4"];
+
+    // 2. Nós de Ação (Casos Base da Recursão)
+    b1 [label="BUBBLE SORT!", shape=box, style=filled, fillcolor="tomato"];
+    b2 [label="BUBBLE SORT!", shape=box, style=filled, fillcolor="tomato"];
+    b3 [label="BUBBLE SORT!", shape=box, style=filled, fillcolor="tomato"];
+    b4 [label="BUBBLE SORT!", shape=box, style=filled, fillcolor="tomato"];
+
+    // 3. Nós de Combinação (Merge)
+    m1 [label="Merge\n(Ordena n=7)", shape=diamond, style=filled, fillcolor="skyblue"];
+    m2 [label="Merge\n(Ordena n=8)", shape=diamond, style=filled, fillcolor="skyblue"];
+    m_final [label="Array Final Ordenado (n=15)", shape=box, style=filled, fillcolor="palegreen"];
+
+    // --- Arestas (Fluxo do Algoritmo) ---
+
+    // 4. Fluxo de Divisão (Chamadas Recursivas)
+    n15 -> n7  [label=" N > 6 (Divide)"];
+    n15 -> n8  [label=" N > 6 (Divide)"];
+    
+    n7  -> n3   [label=" N <= 6"];
+    n7  -> n4_1 [label=" N <= 6"];
+    
+    n8  -> n4_2 [label=" N <= 6"];
+    n8  -> n4_3 [label=" N <= 6"];
+
+    // 5. Atingindo o Caso Base (Chamada do Bubble Sort)
+    n3   -> b1;
+    n4_1 -> b2;
+    n4_2 -> b3;
+    n4_3 -> b4;
+    
+    // --- Alinhamento de Ranks (NÍVEIS) ---
+    // Adicionamos esta linha para forçar o alinhamento
+    { rank=same; n3; n4_1; n4_2; n4_3 }
+    { rank=same; b1; b2; b3; b4 }
+    { rank=same; m1; m2 }
+
+    // 6. Fluxo de Combinação (Merge)
+    b1 -> m1;
+    b2 -> m1;
+    
+    b3 -> m2;
+    b4 -> m2;
+    
+    m1 -> m_final [label="Merge"];
+    m2 -> m_final [label="Merge"];
+    
+    // Aresta invisível REMOVIDA para um layout mais natural
+}
