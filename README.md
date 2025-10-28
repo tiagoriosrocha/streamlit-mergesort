@@ -61,3 +61,8 @@ http://localhost:8501
 Universidade Federal do Rio Grande do Sul (UFRGS)  
 Disciplina: CMP625 - Algorithms  
 Professor: Nicolas Maillard
+
+## Onde encontrar o código-fonte
+O código fonte utilizado nesse projeto streamlit está disponível no repositório: [GitHub-streamlit](https://github.com/tiagoriosrocha/streamlit-mergesort)
+
+O código fonte utilizado dos experimentos está disponível no repositório: [GitHub-experimentos](https://github.com/tiagoriosrocha/mergesort)
