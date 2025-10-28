@@ -31,7 +31,7 @@ Este aplicativo em Streamlit foi desenvolvido para a disciplina **CMP625 - Algor
 Ele permite explorar:
 
 - O comportamento dos algoritmos híbridos Merge+Insertion e Merge+Bubble.
-- A comparação com o Merge Sort puro.
+- A comparação com o Merge Sort.
 - A relação entre os tempos reais e as curvas teóricas de complexidade.
 - A análise do *threshold ideal* para cada abordagem.
 
