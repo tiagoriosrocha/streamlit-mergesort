@@ -435,9 +435,9 @@ elif page == "3. Análise de Complexidade Teórica":
     st.latex(r"T(n) = 2T(n/2) + \Theta(n)")
     
     st.markdown("""
-    - **`a = 2`**: O algoritmo faz duas chamadas recursivas.
-    - **`b = 2`**: O problema é dividido pela metade.
-    - **`f(n) = \Theta(n)`**: O custo da função `merge` para combinar as metades é linear.
+    - **a = 2**: O algoritmo faz duas chamadas recursivas.
+    - **b = 2**: O problema é dividido pela metade.
+    - **$f(n) = \Theta(n)$**: O custo da função `merge` para combinar as metades é linear.
     
     O trabalho no caso base (Bubble/Insertion) é $O(k^2)$, onde `k=THRESHOLD`. Como `k` é uma **constante**, esse custo não altera a complexidade assintótica geral.
     """)
