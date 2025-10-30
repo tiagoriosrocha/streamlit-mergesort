@@ -4,14 +4,23 @@ import numpy as np
 import altair as alt
 import re
 
+####################################################################
+####################################################################
 # --- Configuração da Página ---
+####################################################################
+####################################################################
+
 st.set_page_config(
     page_title="Análise de Algoritmos Híbridos",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- Funções de Carregamento de Dados (com Cache) ---
+####################################################################
+####################################################################
+# --- Funções de Carregamento de Dados ---
+####################################################################
+####################################################################
 
 @st.cache_data
 def load_data():
@@ -24,8 +33,11 @@ def load_data():
         df_insertion_raw = pd.read_csv("merge-insertion-raw_times.csv")
         return df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw
     except FileNotFoundError as e:
-        st.error(f"Erro ao carregar o arquivo: {e.filename}. Certifique-se de que todos os arquivos CSV (e imagens) estão na mesma pasta que o app.py.")
+        st.error(f"Erro ao carregar o arquivo: {e.filename}.")
         return None, None, None
+
+####################################################################
+####################################################################
 
 @st.cache_data
 def load_code(file_path):
@@ -35,6 +47,9 @@ def load_code(file_path):
             return f.read()
     except FileNotFoundError:
         return f"Erro: Arquivo {file_path} não encontrado."
+
+####################################################################
+####################################################################
 
 def extract_function(code, function_name):
     """Extrai uma função específica do código C para exibição."""
@@ -46,6 +61,9 @@ def extract_function(code, function_name):
     except Exception:
         return "Erro ao processar o código."
 
+####################################################################
+####################################################################
+
 @st.cache_data
 def analyze_thresholds(df_raw, name):
     """Analisa o dataframe para encontrar o melhor threshold para cada tamanho."""
@@ -56,7 +74,56 @@ def analyze_thresholds(df_raw, name):
     best_thresholds_df = best_thresholds_df.rename(columns={'Threshold': f'Melhor_Threshold_{name}'})
     return best_thresholds_df
 
+
+####################################################################
+####################################################################
 # --- Funções de Geração de Gráficos ---
+####################################################################
+####################################################################
+
+def generate_theory_chart():
+    """
+    Gera um gráfico teórico comparando n^2, n log(n), e n
+    em uma escala log-log para visualização clara.
+    """
+    # 1. Gerar dados teóricos
+    n = np.arange(3, 1000)
+    data = pd.DataFrame({'n': n})
+    
+    # Renomear as colunas para a legenda ficar clara
+    data['n (Linear)'] = data['n']
+    data['n log(n) (Log-Linear)'] = data['n'] * np.log(data['n'])
+    data['n^2 (Quadrática)'] = data['n']**2
+    
+    # 2. "Derreter" o dataframe para o formato longo
+    df_melt = data.melt(
+        id_vars=['n'],
+        value_vars=['n (Linear)', 'n log(n) (Log-Linear)', 'n^2 (Quadrática)'],
+        var_name='Complexidade',
+        value_name='Custo Teórico'
+    )
+    
+    # 3. Criar o gráfico
+    chart = alt.Chart(df_melt).mark_line().encode(
+        # Eixo X em escala logarítmica
+        x=alt.X('n', title='Tamanho da Entrada (n)'),
+        
+        # Eixo Y também em escala logarítmica
+        y=alt.Y('Custo Teórico', title='Custo Computacional'),
+        
+        # Cor e legenda
+        color=alt.Color('Complexidade', title='Função de Custo'),
+        
+        # Tooltip para interatividade
+        tooltip=['n', 'Complexidade', 'Custo Teórico']
+    ).properties(
+        title='Comparação Teórica de Complexidade'
+    ).interactive()
+    
+    return chart
+
+####################################################################
+####################################################################
 
 def create_theory_chart(df_raw, title):
     """Cria o gráfico de comparação do tempo real vs. complexidade teórica."""
@@ -68,7 +135,6 @@ def create_theory_chart(df_raw, title):
     # 2. Adicionar Funções Teóricas
     df_agg['n'] = df_agg['Tamanho']
     df_agg['n log n'] = df_agg['Tamanho'] * np.log(df_agg['Tamanho'])
-    # Removida a linha n^2 conforme solicitação #5
 
     # 3. Escalar Funções Teóricas
     max_time = df_agg['TempoRealMinimo'].max()
@@ -76,7 +142,6 @@ def create_theory_chart(df_raw, title):
 
     df_agg['n (escalado)'] = df_agg['n'] * (max_time / df_agg['n'].max())
     df_agg['n log n (escalado)'] = df_agg['n log n'] * (max_time / df_agg['n log n'].max())
-    # Removida a linha n^2 (escalado)
 
     # 4. Preparar para o Gráfico (Melt)
     df_melt = df_agg.melt(
@@ -88,8 +153,6 @@ def create_theory_chart(df_raw, title):
     )
 
     # 5. Criar o Gráfico Altair
-    # Solicitação #6: Gráficos interativos com filtros.
-    # O .interactive() já permite zoom/pan e clique na legenda para filtrar.
     chart = alt.Chart(df_melt).mark_line(point=True).encode(
         x=alt.X('Tamanho', title='Tamanho da Entrada (n)'),
         y=alt.Y('Tempo (s)', title='Tempo de Execução (escalado)'),
@@ -97,9 +160,12 @@ def create_theory_chart(df_raw, title):
         tooltip=['Tamanho', 'Métrica', alt.Tooltip('Tempo (s)', format='.8f')]
     ).properties(
         title=title
-    ).interactive() # Habilita zoom, pan e filtro pela legenda
+    ).interactive()
     
     return chart
+
+####################################################################
+####################################################################
 
 def create_comparison_chart(df_raw):
     """Cria o gráfico comparativo final garantindo que Merge+Insertion, Merge+Bubble e Merge Puro apareçam."""
@@ -171,6 +237,12 @@ def create_comparison_chart(df_raw):
 
     return chart
 
+
+###################################################################
+###################################################################
+###################################################################
+###################################################################
+
 # --- Carregamento Principal ---
 df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw = load_data()
 code_merge4 = load_code('merge4_final.c')
@@ -179,7 +251,7 @@ code_best_merge = load_code('process_best_merge_results.c')
 code_best_insertion = load_code('process_best_mergeinsertion_results.c')
 code_best_bubble = load_code('process_best_mergebubble_results.c')
 
-# Análise de Threshold (para Solicitação #8)
+# Análise de Threshold
 if df_insertion is not None and df_bubble is not None:
     best_thresholds_insertion = analyze_thresholds(df_insertion, "Insertion")
     best_thresholds_bubble = analyze_thresholds(df_bubble, "Bubble")
@@ -188,7 +260,12 @@ else:
     best_thresholds_bubble = pd.DataFrame()
 
 
-# --- Interface do Streamlit (Navegação) ---
+####################################################################
+####################################################################
+# -- Barra Lateral de Navegação ---
+####################################################################
+####################################################################
+
 st.sidebar.title("Navegação da Análise")
 page = st.sidebar.radio("Ir para:", [
     "Apresentação",
@@ -202,7 +279,12 @@ page = st.sidebar.radio("Ir para:", [
     "Apêndice: Dados Brutos (.csv)"
 ])
 
+####################################################################
+####################################################################
 # --- Conteúdo das Páginas ---
+####################################################################
+####################################################################
+
 if page == "Apresentação":
     st.set_page_config(page_title="Análise Mergesort Híbrido")
     st.title("Análise de Desempenho: Otimizando o Merge Sort com Hibridização")
@@ -225,6 +307,9 @@ if page == "Apresentação":
     A estratégia é parar a recursão quando o array for pequeno o suficiente (definido por um `THRESHOLD`) e usar um algoritmo quadrático mais simples, como o Insertion Sort ou o Bubble Sort, para finalizar o trabalho.
     """)    
 
+####################################################################
+####################################################################
+
 elif page == "Introdução":
     st.title("Análise de Desempenho: Otimizando o Merge Sort com Hibridização")
     st.markdown("""
@@ -234,7 +319,6 @@ elif page == "Introdução":
     resulta em uma otimização de desempenho.
     """)
     
-    # Solicitação #1: Adicionar imagem do processo híbrido
     st.subheader("Visualização da Estratégia Híbrida (THRESHOLD = 6)")
     try:
         # Você deve criar e nomear esta imagem
@@ -247,34 +331,31 @@ elif page == "Introdução":
 
     st.markdown("Use a barra de navegação à esquerda para explorar as diferentes seções da análise.")
 
+####################################################################
+####################################################################
 
 elif page == "1. Fundamentos (Algoritmos Base)":
-    st.header("1. Fundamentos: Os Blocos de Construção")
-    
+    st.header("1. Algoritmos Base Utilizados")
+    st.subheader("Gráfico de Complexidade Teórico")
+    st.markdown("O gráfico a seguir mostra como a complexidade linear, log-linear e quadrática se relacionam conforme o tamanho da entrada aumenta.")
+    st.markdown("O eixo X representa o tamanho da entrada (n), enquanto o eixo Y representa o custo computacional estimado.")
+    chart1 = generate_theory_chart()
+    st.altair_chart(chart1, use_container_width=True)
+
+    # Divido em três abas
     tab1, tab2, tab3 = st.tabs(["Merge Sort", "Bubble Sort", "Insertion Sort"])
     
     with tab1:
-        st.subheader("Merge Sort")
-        # Solicitação #2: Adicionar imagem
-        try:
-            st.image("merge.png", caption="Visualização do processo de Divisão e Conquista do Merge Sort.")
-        except FileNotFoundError:
-            st.warning("Arquivo 'merge.png' não encontrado.")
-            
+        st.subheader("Merge Sort")    
         st.markdown("""
         - **Conceito:** Um algoritmo clássico de "Divisão e Conquista".
         - **Complexidade Teórica:** $\Theta(n \log n)$ em todos os casos.
         - **Problema:** A recursão tem um "custo" (overhead) que pode ser ineficiente para arrays muito pequenos.
         """)
+        st.code(extract_function(code_merge4, "mergeSort"), language='c')
         
     with tab2:
-        st.subheader("Bubble Sort")
-        # Solicitação #3: Adicionar imagem
-        try:
-            st.image("bubble.png", caption="Visualização do processo de 'borbulhamento' do Bubble Sort.")
-        except FileNotFoundError:
-            st.warning("Arquivo 'bubble.png' não encontrado.")
-            
+        st.subheader("Bubble Sort")    
         st.markdown("""
         - **Conceito:** Um algoritmo de ordenação quadrático simples ($\Theta(n^2)$).
         - **Como funciona:** Compara repetidamente elementos adjacentes e os troca se estiverem na ordem errada.
@@ -283,17 +364,14 @@ elif page == "1. Fundamentos (Algoritmos Base)":
 
     with tab3:
         st.subheader("Insertion Sort")
-        # Solicitação #4: Adicionar imagem
-        try:
-            st.image("insertion.png", caption="Visualização do processo de 'inserção' do Insertion Sort.")
-        except FileNotFoundError:
-            st.warning("Arquivo 'insertion.png' não encontrado.")
-            
         st.markdown("""
         - **Conceito:** Outro algoritmo quadrático ($\Theta(n^2)$).
         - **Característica Especial:** Extremamente rápido para arrays pequenos e arrays "quase ordenados".
         """)
         st.code(extract_function(code_merge5, "insertionSort"), language='c')
+
+####################################################################
+####################################################################
 
 elif page == "2. Metodologia Experimental":
     st.header("2. Metodologia Experimental")
@@ -348,6 +426,9 @@ elif page == "2. Metodologia Experimental":
     Os gráficos nas seções seguintes utilizam a **menor média** (`MediaReal.min()`) encontrada para cada `Tamanho`, representando o desempenho ótimo do algoritmo (ou seja, o melhor `Threshold` para aquele `Tamanho`).
     """)
 
+####################################################################
+####################################################################
+
 elif page == "3. Análise de Complexidade Teórica":
     st.header("3. Análise de Complexidade Teórica")
     st.markdown("A recorrência para **todos** os três algoritmos (Puro e Híbridos) é a mesma:")
@@ -369,11 +450,13 @@ elif page == "3. Análise de Complexidade Teórica":
     
     st.success("**Conclusão Teórica:** Todos os algoritmos analisados possuem uma complexidade de tempo assintótica de $\Theta(n \log n)$.")
 
+####################################################################
+####################################################################
+
 elif page == "4. Resultados Visuais (Gráficos)":
     st.header("4. Resultados Visuais (Gráficos)")
     st.markdown("Os dados empíricos validam a nossa análise teórica.")
     
-    # Solicitação #7: O gráfico comparativo é o de best_results_analysis.ipynb
     if df_best is not None:
         st.subheader("Análise Comparativa Final: Híbridos vs. Puro")
         chart_comparison = create_comparison_chart(df_best)
@@ -389,7 +472,6 @@ elif page == "4. Resultados Visuais (Gráficos)":
     else:
         st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
 
-    # Solicitação #5: Remover n^2 dos gráficos de teoria
     st.subheader("Verificação de Complexidade (Gráficos de Teoria)")
     st.markdown("Os gráficos abaixo confirmam que o desempenho real (TempoRealMinimo) segue a curva $\Theta(n \log n)$, e não $\Theta(n)$.")
 
@@ -404,6 +486,9 @@ elif page == "4. Resultados Visuais (Gráficos)":
             st.altair_chart(chart_insertion, use_container_width=True)
 
 
+####################################################################
+####################################################################
+
 elif page == "5. Conclusões":
     st.header("5. Conclusões Finais")
     st.markdown("""
@@ -414,7 +499,6 @@ elif page == "5. Conclusões":
     5.  **O Perdedor:** O híbrido **Merge Sort + Bubble Sort (`merge4.c`)** foi ineficaz, sendo consistentemente mais lento que a versão original pura.
     """)
 
-    # Solicitação #8: Análise do Threshold
     st.subheader("Análise do Threshold Ideal")
     st.markdown("""
     O `THRESHOLD` define o "ponto de virada" onde o algoritmo para de dividir (recursão) e começa a ordenar (caso base). Encontrar o valor ideal é a chave para a otimização.
@@ -422,7 +506,6 @@ elif page == "5. Conclusões":
     Abaixo está a análise do porquê os valores ideais são tão diferentes entre os dois algoritmos híbridos:
     """)
 
-    # Criando duas colunas para a comparação
     col1, col2 = st.columns(2)
 
     with col1:
@@ -445,7 +528,7 @@ elif page == "5. Conclusões":
         * **Ponto de Virada:** Ele se torna *lento* muito rapidamente. Nossos testes mostram que para listas maiores que `n \approx 8`, o custo de rodar o Bubble Sort já é *maior* do que o custo de continuar a recursão do Merge Sort.
         """)
 
-    st.markdown("---") # Uma linha divisória
+    st.markdown("---")
 
     st.markdown("""
     **Em resumo:** O Insertion Sort é uma escolha vastamente superior para o caso base, pois sua baixa sobrecarga o torna viável para otimizar listas de tamanhos muito maiores.
@@ -470,6 +553,8 @@ elif page == "5. Conclusões":
         else:
             st.warning("Dados de threshold do Bubble Sort não puderam ser analisados.")
 
+####################################################################
+####################################################################
 
 elif page == "Apêndice: Códigos-Fonte (.c)":
     st.header("Apêndice: Códigos-Fonte (.c)")
@@ -518,6 +603,9 @@ elif page == "Apêndice: Códigos-Fonte (.c)":
             file_name="process_best_mergeinsertion_results.c",
             mime="text/x-csrc"
         )
+
+####################################################################
+####################################################################
 
 elif page == "Apêndice: Dados Brutos (.csv)":
     st.header("Apêndice: Dados Brutos (.csv)")
