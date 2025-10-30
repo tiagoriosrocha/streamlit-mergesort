@@ -168,32 +168,39 @@ def create_theory_chart(df_raw, title):
 ####################################################################
 
 def create_comparison_chart(df_raw):
-    """Cria o gráfico comparativo final garantindo que Merge+Insertion, Merge+Bubble e Merge Puro apareçam."""
+    """
+    Cria o gráfico comparativo simplificado, focando APENAS nos dados reais
+    dos três algoritmos (Puro vs Híbridos), COM ESCALA LINEAR.
+    """
 
-    # Separar dados
+    # 1. Separar dados
+    # Assume que df_raw['Threshold'] == -1 são os dados do Merge Puro
     df_merge = df_raw[df_raw['Threshold'] == -1].copy()
     df_hybrid = df_raw[df_raw['Threshold'] > -1].copy()
 
-    # Padronizar nomes
+    # 2. Padronizar nomes
     df_hybrid['Algoritmo'] = df_hybrid['Algoritmo'].replace({
         'merge+insertion': 'Merge+Insertion',
         'merge+bubble': 'Merge+Bubble'
     })
     df_merge['Algoritmo'] = 'Merge Puro'
 
-    # Selecionar o melhor threshold para cada híbrido
+    # 3. Selecionar o melhor threshold para cada híbrido
     best_hybrid_list = []
     for algo in ['Merge+Insertion', 'Merge+Bubble']:
         df_algo = df_hybrid[df_hybrid['Algoritmo'] == algo]
         if not df_algo.empty:
+            # Encontra o índice da linha com o menor 'MediaReal' para cada 'Tamanho'
             idx_best = df_algo.groupby('Tamanho')['MediaReal'].idxmin()
             best_hybrid_list.append(df_algo.loc[idx_best])
+    
+    # Concatena os melhores resultados dos híbridos
     df_best_hybrid = pd.concat(best_hybrid_list, ignore_index=True)
 
-    # Concatenar Merge Puro
+    # 4. Concatenar Merge Puro para ter todos os dados reais
     df_plot = pd.concat([df_best_hybrid, df_merge], ignore_index=True)
-
-    # Preparar Altair
+    
+    # 5. Preparar Altair (Melt)
     df_melt = df_plot.melt(
         id_vars=['Tamanho', 'Algoritmo'],
         value_vars=['MediaReal'],
@@ -201,35 +208,26 @@ def create_comparison_chart(df_raw):
         value_name='Tempo (s)'
     )
 
-    # Linhas teóricas
-    n_vals = np.linspace(df_plot['Tamanho'].min(), df_plot['Tamanho'].max(), 200)
-    max_obs = df_plot['MediaReal'].max()
-
-    df_theory_log = pd.DataFrame({
-        'Tamanho': n_vals,
-        'Tempo (s)': n_vals * np.log2(n_vals) * (max_obs / (n_vals * np.log2(n_vals)).max()),
-        'Algoritmo': 'n·log(n)'
-    })
-
-    df_theory_n = pd.DataFrame({
-        'Tamanho': n_vals,
-        'Tempo (s)': n_vals * (max_obs / n_vals.max()),
-        'Algoritmo': 'n'
-    })
-
-    df_final = pd.concat([df_melt[['Tamanho', 'Tempo (s)', 'Algoritmo']], df_theory_log, df_theory_n], ignore_index=True)
-
-    # Cores fixas
+    # 6. Definir cores (escala simplificada)
     color_scale = alt.Scale(domain=[
-        'Merge+Insertion', 'Merge Puro', 'Merge+Bubble', 'n·log(n)', 'n'
+        'Merge+Insertion', 'Merge Puro', 'Merge+Bubble'
     ], range=[
-        'blue', 'orange', 'red', 'green', 'purple'
+        'blue', 'orange', 'red'
     ])
 
-    chart = alt.Chart(df_final).mark_line().encode(
+    # 7. Criar o gráfico final
+    chart = alt.Chart(df_melt).mark_line(point=True).encode(
+        # Eixo X Linear
         x=alt.X('Tamanho', title='Tamanho da Entrada (n)'),
-        y=alt.Y('Tempo (s)', title='Tempo de Execução (s)'),
-        color=alt.Color('Algoritmo', scale=color_scale, title='Algoritmo/Teórico'),
+        
+        # --- MODIFICAÇÃO AQUI ---
+        # Eixo Y Linear (escala padrão, sem log)
+        y=alt.Y('Tempo (s)', 
+                title='Tempo de Execução (s) - Escala Linear'),
+        # ------------------------
+        
+        # Cores e Legendas
+        color=alt.Color('Algoritmo', scale=color_scale, title='Algoritmo'),
         tooltip=['Tamanho', 'Algoritmo', 'Tempo (s)']
     ).properties(
         title='Análise Comparativa Final: Híbridos vs. Merge Puro'
@@ -466,24 +464,22 @@ elif page == "4. Resultados Visuais (Gráficos)":
         - **Linha Azul (Merge+Insertion):** É o algoritmo mais rápido na prática.
         - **Linha Laranja (Merge Puro):** É a nossa linha de base.
         - **Linha Vermelha (Merge+Bubble):** É o algoritmo mais lento.
-        - **Linha Verde (n·log(n)):** Representa o crescimento esperado pela complexidade teórica $\Theta(n \log n)$.
-        - **Linha Roxa (n):** Representa o crescimento linear de referência.
         """)
     else:
         st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
 
-    st.subheader("Verificação de Complexidade (Gráficos de Teoria)")
-    st.markdown("Os gráficos abaixo confirmam que o desempenho real (TempoRealMinimo) segue a curva $\Theta(n \log n)$, e não $\Theta(n)$.")
+    # st.subheader("Verificação de Complexidade (Gráficos de Teoria)")
+    # st.markdown("Os gráficos abaixo confirmam que o desempenho real (TempoRealMinimo) segue a curva $\Theta(n \log n)$, e não $\Theta(n)$.")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if df_bubble is not None:
-            chart_bubble = create_theory_chart(df_bubble, "Desempenho: Merge+Bubble vs. Teoria")
-            st.altair_chart(chart_bubble, use_container_width=True)
-    with col2:
-        if df_insertion is not None:
-            chart_insertion = create_theory_chart(df_insertion, "Desempenho: Merge+Insertion vs. Teoria")
-            st.altair_chart(chart_insertion, use_container_width=True)
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     if df_bubble is not None:
+    #         chart_bubble = create_theory_chart(df_bubble, "Desempenho: Merge+Bubble vs. Teoria")
+    #         st.altair_chart(chart_bubble, use_container_width=True)
+    # with col2:
+    #     if df_insertion is not None:
+    #         chart_insertion = create_theory_chart(df_insertion, "Desempenho: Merge+Insertion vs. Teoria")
+    #         st.altair_chart(chart_insertion, use_container_width=True)
 
 
 ####################################################################
