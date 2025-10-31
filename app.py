@@ -310,7 +310,7 @@ page = st.sidebar.radio("Ir para:", [
     "1. Fundamentos (Algoritmos Base)",
     "2. Metodologia Experimental",
     "3. Análise de Complexidade Teórica",
-    "4. Resultados Visuais (Gráficos)",
+    "4. Resultados Visuais",
     "5. Conclusões",
     "Apêndice: Códigos-Fonte (.c)",
     "Apêndice: Dados Brutos (.csv)"
@@ -490,8 +490,8 @@ elif page == "3. Análise de Complexidade Teórica":
 ####################################################################
 ####################################################################
 
-elif page == "4. Resultados Visuais (Gráficos)":
-    st.header("4. Resultados Visuais (Gráficos)")
+elif page == "4. Resultados Visuais":
+    st.header("4. Resultados Visuais")
     st.markdown("Os dados empíricos validam a nossa análise teórica.")
     
     if df_best is not None:
@@ -514,8 +514,6 @@ elif page == "4. Resultados Visuais (Gráficos)":
     A **sombra** representa o **desvio padrão** (±) para essas execuções, indicando a consistência do teste.
     *(Usamos uma escala logarítmica no eixo Y para melhor visualização.)*
     """)
-
-    st.subheader("Gráfico de Desempenho (Tempo Real vs. CPU) com Desvio Padrão")
     st.markdown("""
     Os gráficos a seguir mostram o desempenho do **melhor threshold** encontrado para cada `Tamanho`.
     Eles plotam tanto o **Tempo Real** (tempo de relógio) quanto o **Tempo de CPU** (tempo de processamento).
@@ -536,6 +534,60 @@ elif page == "4. Resultados Visuais (Gráficos)":
         if df_bubble is not None:
             chart_mergeinsertion = create_result_individual_chart(df_final_mergeinsertion, "Merge+Insertion (Melhor Média ± Desvio)")
             st.altair_chart(chart_mergeinsertion, use_container_width=True)
+
+    
+
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("##### Merge")
+        if not df_final_merge.empty:
+            st.dataframe(df_final_merge, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge Sort não puderam ser analisados.")
+    
+    with col2:
+        st.markdown("##### Híbrido: Merge + Bubble")
+        if not df_final_mergebubble.empty:
+            st.dataframe(df_final_mergebubble, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge com Bubble Sort não puderam ser analisados.")
+    
+    with col3:
+        st.markdown("##### Híbrido: Merge + Insertion")
+        if not df_final_mergeinsertion.empty:
+            st.dataframe(df_final_mergeinsertion, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge com Insertion Sort não puderam ser analisados.")
+
+    
+    
+    st.subheader("Análise: Tempo Real vs. Tempo de CPU")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### Tempo Real (Wall-Clock Time)")
+        st.markdown("""
+        Mede o **tempo total** que se passou no relógio, do início ao fim do teste. 
+        
+        * **O que inclui:** Tempo de processamento e tempo de espera (ex: I/O, outras tarefas do sistema operacional).
+        * **Função C:** `time()` (e `difftime()`)
+        """)
+        st.code("real_start = time(NULL);\n// ...código...\nreal_end = time(NULL);\nreal_time_used = difftime(real_end, real_start);", language="c")
+
+    with col2:
+        st.markdown("#### Tempo de CPU (Processador)")
+        st.markdown("""
+        Mede **apenas o tempo** em que o processador estava *ativamente* trabalhando no código.
+        
+        * **O que ignora:** Tempo em que o programa estava "parado" esperando o SO ou outros processos.
+        * **Função C:** `clock()`
+        """)
+        st.code("cpu_start = clock();\n// ...código...\ncpu_end = clock();\ncpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;", language="c")
             
     
 
@@ -581,30 +633,11 @@ elif page == "5. Conclusões":
         * **Ponto de Virada:** Ele se torna *lento* muito rapidamente. Nossos testes mostram que para listas maiores que `n \approx 8`, o custo de rodar o Bubble Sort já é *maior* do que o custo de continuar a recursão do Merge Sort.
         """)
 
-    st.markdown("---")
-
-    st.markdown("""
-    **Em resumo:** O Insertion Sort é uma escolha vastamente superior para o caso base, pois sua baixa sobrecarga o torna viável para otimizar listas de tamanhos muito maiores.
-
-    Abaixo estão os valores de `THRESHOLD` que resultaram no menor tempo de execução para cada `Tamanho` de entrada, lidos do arquivo que corrigimos:
-    """)
+    # st.markdown("---")
+    # st.markdown("""
+    # **Em resumo:** O Insertion Sort é uma escolha vastamente superior para o caso base, pois sua baixa sobrecarga o torna viável para otimizar listas de tamanhos muito maiores.
+    # """)           
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("##### Híbrido: Merge + Insertion")
-        if not best_thresholds_insertion.empty:
-            st.dataframe(best_thresholds_insertion, use_container_width=True)
-            st.caption("Menores tempos médios para cada tamanho de entrada.")
-        else:
-            st.warning("Dados de threshold do Insertion Sort não puderam ser analisados.")
-            
-    with col2:
-        st.markdown("##### Híbrido: Merge + Bubble")
-        if not best_thresholds_bubble.empty:
-            st.dataframe(best_thresholds_bubble, use_container_width=True)
-            st.caption("Menores tempos médios para cada tamanho de entrada.")
-        else:
-            st.warning("Dados de threshold do Bubble Sort não puderam ser analisados.")
 
 ####################################################################
 ####################################################################
@@ -663,14 +696,38 @@ elif page == "Apêndice: Códigos-Fonte (.c)":
 elif page == "Apêndice: Dados Brutos (.csv)":
     st.header("Apêndice: Dados Brutos (.csv)")
     
-    st.subheader("Melhores Resultados (Comparativo Final - três .csv de melhores tempos combinados)")
-    with st.expander("Mostrar dados de 'melhores_resultados_merge_hibridos.csv'"):
-        if df_best is not None:
-            st.dataframe(df_best)
+    st.subheader("Melhores Resultados")
+    with st.expander("Mostrar dados de 'melhores_resultados_merge.csv'"):
+        if df_final_merge is not None:
+            st.dataframe(df_final_merge)
             st.download_button(
-                label="Baixar melhores_resultados_merge_hibridos.csv",
-                data=df_best.to_csv(index=False).encode('utf-8'),
-                file_name="melhores_resultados_merge_hibridos.csv",
+                label="Baixar melhores_resultados_merge.csv",
+                data=df_final_merge.to_csv(index=False).encode('utf-8'),
+                file_name="melhores_resultados_merge.csv",
+                mime="text/csv"
+            )
+        else:
+            st.warning("Arquivo não carregado.")
+
+    with st.expander("Mostrar dados de 'melhores_resultados_mergebubble.csv'"):
+        if df_final_mergebubble is not None:
+            st.dataframe(df_final_mergebubble)
+            st.download_button(
+                label="Baixar melhores_resultados_merge.csv",
+                data=df_final_mergebubble.to_csv(index=False).encode('utf-8'),
+                file_name="melhores_resultados_mergebubble.csv",
+                mime="text/csv"
+            )
+        else:
+            st.warning("Arquivo não carregado.")
+
+    with st.expander("Mostrar dados de 'melhores_resultados_mergeinsertion.csv'"):
+        if df_final_mergeinsertion is not None:
+            st.dataframe(df_final_mergeinsertion)
+            st.download_button(
+                label="Baixar melhores_resultados_mergeinsertion.csv",
+                data=df_final_mergeinsertion.to_csv(index=False).encode('utf-8'),
+                file_name="melhores_resultados_mergeinsertion.csv",
                 mime="text/csv"
             )
         else:
