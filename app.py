@@ -466,26 +466,165 @@ elif page == "2. Metodologia Experimental":
 ####################################################################
 ####################################################################
 
+
 elif page == "3. Análise de Complexidade Teórica":
     st.header("3. Análise de Complexidade Teórica")
-    st.markdown("A recorrência para **todos** os três algoritmos (Puro e Híbridos) é a mesma:")
+    st.markdown(r"Esta seção divide a análise em duas partes: a **Análise Assintótica**, que fornece a complexidade de alto nível, e a **Análise Concreta**, que explica o impacto real do `THRESHOLD`.")
+    
+    st.divider()
+
+    st.subheader("Parte 1: Análise Assintótica (Usando o Teorema Mestre)")
+    st.markdown(r"Primeiro, é provado que todos os três algoritmos (Puro e Híbridos) pertencem à **mesma classe de complexidade**.")
+    st.markdown(r"A recorrência para todos os algoritmos é:")
     st.latex(r"T(n) = 2T(n/2) + \Theta(n)")
     
-    st.markdown("""
-    - **a = 2**: O algoritmo faz duas chamadas recursivas.
-    - **b = 2**: O problema é dividido pela metade.
-    - **$f(n) = \Theta(n)$**: O custo da função `merge` para combinar as metades é linear.
+    st.markdown("- a = 2: O algoritmo faz duas chamadas recursivas.")
+    st.markdown("- b = 2: O problema é dividido pela metade.")
+    st.markdown(r"- $f(n) = \Theta(n)$ : O custo da função `merge` para combinar as metades é linear.")
+    st.markdown("")
+    st.markdown("O trabalho no caso base (Bubble/Insertion) é $O(k^2)$, onde `k=THRESHOLD`. Como `k` é uma **constante**, seu custo não depende de `n` e, portanto, não altera a complexidade *assintótica* geral.")
     
-    O trabalho no caso base (Bubble/Insertion) é $O(k^2)$, onde `k=THRESHOLD`. Como `k` é uma **constante**, esse custo não altera a complexidade assintótica geral.
-    """)
+    # st.markdown(r"""
+    # - **`a = 2`**: O algoritmo faz duas chamadas recursivas.
+    # - **`b = 2`**: O problema é dividido pela metade.
+    # - **`f(n) = \Theta(n)`**: O custo da função `merge` para combinar as metades é linear.
     
-    st.subheader("Aplicando o Teorema Mestre (Caso 2)")
-    st.markdown("1. **Calcular Função Crítica:** $n^{\log_b a} = n^{\log_2 2} = n^1 = n$")
-    st.markdown("2. **Comparar:** O custo $f(n) = \Theta(n)$ está em equilíbrio com a função crítica $\Theta(n)$.")
-    st.markdown("3. **Concluir:** A solução é $\Theta(n^{\log_b a} \log n)$, o que resulta em:")
+    # O trabalho no caso base (Bubble/Insertion) é $O(k^2)$, onde `k=THRESHOLD`. Como `k` é uma **constante**, seu custo não depende de `n` e, portanto, não altera a complexidade *assintótica* geral.
+    # """)
+    
+    st.markdown(r"##### Aplicando o Teorema Mestre (Caso 2)")
+    st.markdown(r"1. **Calcular Função Crítica:** $n^{\log_b a} = n^{\log_2 2} = n^1 = n$")
+    st.markdown(r"2. **Comparar:** O custo $f(n) = \Theta(n)$ está em equilíbrio com a função crítica $\Theta(n)$.")
+    st.markdown(r"3. **Concluir:** A solução é $\Theta(n^{\log_b a} \log n)$, o que resulta em:")
     st.latex(r"T(n) = \Theta(n \log n)")
     
-    st.success("**Conclusão Teórica:** Todos os algoritmos analisados possuem uma complexidade de tempo assintótica de $\Theta(n \log n)$.")
+    st.info(r"**Conclusão Teórica (Assintótica):** Todos os algoritmos analisados são $\Theta(n \log n)$.")
+    
+    st.divider()
+
+    st.subheader(r"Parte 2: Análise Concreta (O Impacto Real do THRESHOLD $k$)")
+    st.markdown(r"""
+    Agora, será feita uma análise concreta sem ignorar as constantes. A derivação da equação de custo real começa com a recorrência para um `THRESHOLD = k`:
+    """)
+    st.latex(r"T(n) = \begin{cases} 2T(n/2) + c_1 n & \text{se } n > k \text{ (Custo do Merge + Recursão)} \\ c_2 n^2 & \text{se } n \le k \text{ (Custo do Caso Base: Bubble/Insertion)} \end{cases}")
+    
+    st.markdown(r"""
+    Ao "desenrolar" essa recorrência, o custo total de $T(n)$ é a soma de duas partes:
+    
+    1.  **Custo dos Merges (Níveis Superiores):** O custo de todas as mesclagens até o `THRESHOLD` $k$.
+        *Custo* = $c_1 n \times \log_2(n/k)$
+    
+    2.  **Custo dos Casos Base (Folhas):** O número de "folhas" (sub-arrays de tamanho $k$) é $(n/k)$. O custo para ordenar cada uma é $c_2 k^2$. O custo total é:
+    """)
+    
+    st.latex(r"\text{Custo}_{\text{Base}} = (n/k) \times (c_2 k^2) = c_2 n k")
+    
+    st.markdown(r"A soma das duas partes resulta na **Equação de Custo Real:**")
+    
+    st.latex(r"T(n) = c_1 n \log_2(n/k) + c_2 n k")
+    
+    st.markdown(r"Usando a propriedade $\log(a/b) = \log(a) - \log(b)$, a equação pode ser expandida:")
+    st.latex(r"T(n) = c_1 n (\log_2 n - \log_2 k) + c_2 n k")
+    st.markdown(r"E finalmente, agrupando por complexidade:")
+    st.latex(r"T(n) = (c_1) \cdot (n \log n) + (c_2 k - c_1 \log_2 k) \cdot n")
+    
+    st.success(r"""
+    **Esta é a equação chave!** Ela demonstra que o custo total é o termo $\Theta(n \log n)$ de sempre, **MAIS** um termo linear $\Theta(n)$ cujo "peso" (a constante) depende inteiramente da escolha de $k$ e do custo $c_2$ do algoritmo base.
+    """)
+
+    st.subheader(r"Estudo de Caso com Dados Reais: Merge + Insertion Sort")
+    st.markdown(r"""
+    A equação $T(n) = (c_1 n \log n) + (c_2 k - c_1 \log_2 k) n$ mostra uma "troca":
+    
+    * Ao **aumentar $k$**, economiza-se no custo da recursão (o termo $-c_1 \log_2 k \cdot n$).
+    * Ao **aumentar $k$**, paga-se mais no custo do caso base (o termo $c_2 k \cdot n$).
+    
+    O `THRESHOLD` ideal é o $k$ que encontra o "ponto de equilíbrio" perfeito, minimizando a soma. No caso do **Insertion Sort**, o custo $c_2$ (sua sobrecarga de loop) é muito baixo, permitindo um $k$ ideal relativamente alto.
+    """)
+
+    # Tenta extrair os dados reais das planilhas para um exemplo concreto
+    try:
+        # 1. Definir um 'n' grande para o estudo de caso (ex: 10,485,760)
+        n_exemplo = 10485760
+        
+        # 2. Encontrar os dados do HÍBRIDO para este 'n'
+        # Usa a variável correta: df_final_mergeinsertion
+        hibrido_row = df_final_mergeinsertion[df_final_mergeinsertion['Tamanho'] == n_exemplo]
+        
+        # 3. Encontrar os dados do PURO para este 'n'
+        # Usa a variável correta: df_final_merge
+        puro_row = df_final_merge[df_final_merge['Tamanho'] == n_exemplo]
+
+        if hibrido_row.empty or puro_row.empty:
+            st.warning(f"Dados de exemplo para n={n_exemplo} não encontrados nos arquivos 'melhores_resultados_merge.csv' ou 'melhores_resultados_mergeinsertion.csv'.")
+        else:
+            # 4. Extrair os valores
+            # Assumimos que o CSV '...mergeinsertion.csv' tem a coluna 'Threshold'
+            k_ideal = int(hibrido_row['Threshold'].values[0])
+            tempo_hibrido = hibrido_row['MediaReal'].values[0]
+            tempo_puro = puro_row['MediaReal'].values[0]
+            
+            # 5. Calcular a melhoria
+            melhoria_percentual = ((tempo_puro - tempo_hibrido) / tempo_puro) * 100
+
+            st.markdown(r"##### **Análise para n = 10.485.760**")
+            st.markdown(f"""
+            Analisando um `Tamanho` de entrada grande (aprox. 10 milhões) dos dados experimentais:
+
+            * **Entrada (n):** `{n_exemplo:,}`
+            * **`THRESHOLD` Ideal (k):** Os dados do arquivo `melhores_resultados_mergeinsertion.csv` mostram que o `Threshold` que produziu o menor tempo para esta entrada foi **k = {k_ideal}**.
+            
+            Comparando os tempos de execução finais:
+            """)
+
+            # 6. Mostrar métricas lado a lado
+            col1, col2 = st.columns(2)
+            col1.metric(label="Tempo (Merge Puro)", value=f"{tempo_puro:.6f} s")
+            col2.metric(label=f"Tempo (Híbrido com k={k_ideal})", value=f"{tempo_hibrido:.6f} s", 
+                        delta=f"{-melhoria_percentual:.2f}% (Mais Rápido)")
+
+            st.markdown(rf"""
+            **Conclusão do Exemplo:**
+            
+            Isto valida a equação de custo! Ao escolher um `THRESHOLD` $k$ ideal (neste caso, **{k_ideal}**), a economia ganha por não recorrer até o fim (o termo $c_1 n \log_2 k$) foi **maior** que o custo de rodar o Insertion Sort nas folhas (o termo $c_2 n k$).
+            
+            A baixa sobrecarga do Insertion Sort (pequeno $c_2$) permitiu um $k$ relativamente alto, maximizando a economia de recursão e resultando em um algoritmo **{melhoria_percentual:.2f}% mais rápido** na prática.
+            """)
+            
+            st.info(r"**Nota:** O Híbrido com Bubble Sort falha exatamente no oposto: seu custo $c_2$ é tão alto que o `THRESHOLD` ideal é minúsculo (k $\approx$ 8-10), gerando uma economia de recursão insignificante e, na verdade, adicionando mais custo, tornando-o mais lento que o Merge Puro.")
+
+    except KeyError as e:
+        st.error(f"Erro ao gerar o exemplo prático: A coluna {e} não foi encontrada.")
+        st.info("Verifique se os arquivos 'melhores_resultados_merge.csv' e 'melhores_resultados_mergeinsertion.csv' contêm as colunas 'Tamanho', 'MediaReal', e 'Threshold'.")
+    except Exception as e:
+        st.error(f"Ocorreu um erro ao gerar o exemplo prático: {e}")
+
+
+
+#versão mais simples da análise teórica.
+
+# elif page == "3. Análise de Complexidade Teórica":
+#     st.header("3. Análise de Complexidade Teórica")
+#     st.markdown("A recorrência para **todos** os três algoritmos (Puro e Híbridos) é a mesma:")
+#     st.latex(r"T(n) = 2T(n/2) + \Theta(n)")
+    
+#     st.markdown("""
+#     - **a = 2**: O algoritmo faz duas chamadas recursivas.
+#     - **b = 2**: O problema é dividido pela metade.
+#     - **$f(n) = \Theta(n)$**: O custo da função `merge` para combinar as metades é linear.
+    
+#     O trabalho no caso base (Bubble/Insertion) é $O(k^2)$, onde `k=THRESHOLD`. Como `k` é uma **constante**, esse custo não altera a complexidade assintótica geral.
+#     """)
+    
+#     st.subheader("Aplicando o Teorema Mestre (Caso 2)")
+#     st.markdown("1. **Calcular Função Crítica:** $n^{\log_b a} = n^{\log_2 2} = n^1 = n$")
+#     st.markdown("2. **Comparar:** O custo $f(n) = \Theta(n)$ está em equilíbrio com a função crítica $\Theta(n)$.")
+#     st.markdown("3. **Concluir:** A solução é $\Theta(n^{\log_b a} \log n)$, o que resulta em:")
+#     st.latex(r"T(n) = \Theta(n \log n)")
+#     st.markdown("")
+#     st.markdown("**Conclusão Teórica:** Todos os algoritmos analisados possuem uma complexidade de tempo assintótica de $\Theta(n \log n)$.")
+
+
 
 ####################################################################
 ####################################################################
