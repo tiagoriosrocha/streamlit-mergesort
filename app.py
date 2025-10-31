@@ -309,8 +309,8 @@ page = st.sidebar.radio("Ir para:", [
     "Introdução",
     "1. Fundamentos (Algoritmos Base)",
     "2. Metodologia Experimental",
-    "3. Análise de Complexidade Teórica",
-    "4. Resultados Visuais",
+    "3. Resultados Visuais",
+    "4. Análise de Complexidade Teórica",
     "5. Conclusões",
     "Apêndice: Códigos-Fonte (.c)",
     "Apêndice: Dados Brutos (.csv)"
@@ -467,8 +467,112 @@ elif page == "2. Metodologia Experimental":
 ####################################################################
 
 
-elif page == "3. Análise de Complexidade Teórica":
-    st.header("3. Análise de Complexidade Teórica")
+elif page == "3. Resultados Visuais":
+    st.header("3. Resultados Visuais")
+    st.markdown("Os dados empíricos validam a nossa análise teórica.")
+    
+    if df_best is not None:
+        st.subheader("Análise Comparativa Final: Híbridos vs. Puro")
+        chart_comparison = create_comparison_chart(df_best)
+        st.altair_chart(chart_comparison, use_container_width=True)
+        st.markdown("""
+        **Análise:** Este gráfico compara o melhor desempenho de cada algoritmo:
+        - **Linha Azul (Merge+Insertion):** É o algoritmo mais rápido na prática.
+        - **Linha Laranja (Merge Puro):** É a nossa linha de base.
+        - **Linha Vermelha (Merge+Bubble):** É o algoritmo mais lento.
+        """)
+    else:
+        st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
+
+    st.subheader("Gráfico de Melhores Resultados e Desvio Padrão")
+    st.markdown("""
+    Os gráficos a seguir mostram a linha de desempenho do **melhor threshold** encontrado para cada `Tamanho`
+    e para cada **tipo** de algoritmo.
+    A **sombra** representa o **desvio padrão** (±) para essas execuções, indicando a consistência do teste.
+    *(Usamos uma escala logarítmica no eixo Y para melhor visualização.)*
+    """)
+    st.markdown("""
+    Os gráficos a seguir mostram o desempenho do **melhor threshold** encontrado para cada `Tamanho`.
+    Eles plotam tanto o **Tempo Real** (tempo de relógio) quanto o **Tempo de CPU** (tempo de processamento).
+    A **sombra** representa o **desvio padrão** (±) para essas execuções.
+    """)
+
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if df_bubble is not None:
+            chart_merge = create_result_individual_chart(df_final_merge, "Merge (Melhor Média ± Desvio)")
+            st.altair_chart(chart_merge, use_container_width=True)
+    with col2:
+        if df_insertion is not None:
+            chart_mergebubble = create_result_individual_chart(df_final_mergebubble, "Merge+Bubble (Melhor Média ± Desvio)")
+            st.altair_chart(chart_mergebubble, use_container_width=True)
+    with col3:
+        if df_bubble is not None:
+            chart_mergeinsertion = create_result_individual_chart(df_final_mergeinsertion, "Merge+Insertion (Melhor Média ± Desvio)")
+            st.altair_chart(chart_mergeinsertion, use_container_width=True)
+
+    
+
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("##### Merge")
+        if not df_final_merge.empty:
+            st.dataframe(df_final_merge, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge Sort não puderam ser analisados.")
+    
+    with col2:
+        st.markdown("##### Híbrido: Merge + Bubble")
+        if not df_final_mergebubble.empty:
+            st.dataframe(df_final_mergebubble, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge com Bubble Sort não puderam ser analisados.")
+    
+    with col3:
+        st.markdown("##### Híbrido: Merge + Insertion")
+        if not df_final_mergeinsertion.empty:
+            st.dataframe(df_final_mergeinsertion, use_container_width=True)
+            st.caption("Menores tempos médios para cada tamanho de entrada.")
+        else:
+            st.warning("Dados de threshold do Merge com Insertion Sort não puderam ser analisados.")
+
+    
+    
+    st.subheader("Análise: Tempo Real vs. Tempo de CPU")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### Tempo Real (Wall-Clock Time)")
+        st.markdown("""
+        Mede o **tempo total** que se passou no relógio, do início ao fim do teste. 
+        
+        * **O que inclui:** Tempo de processamento e tempo de espera (ex: I/O, outras tarefas do sistema operacional).
+        * **Função C:** `time()` (e `difftime()`)
+        """)
+        st.code("real_start = time(NULL);\n// ...código...\nreal_end = time(NULL);\nreal_time_used = difftime(real_end, real_start);", language="c")
+
+    with col2:
+        st.markdown("#### Tempo de CPU (Processador)")
+        st.markdown("""
+        Mede **apenas o tempo** em que o processador estava *ativamente* trabalhando no código.
+        
+        * **O que ignora:** Tempo em que o programa estava "parado" esperando o SO ou outros processos.
+        * **Função C:** `clock()`
+        """)
+        st.code("cpu_start = clock();\n// ...código...\ncpu_end = clock();\ncpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;", language="c")
+            
+    
+
+####################################################################
+####################################################################
+
+elif page == "4. Análise de Complexidade Teórica":
+    st.header("4. Análise de Complexidade Teórica")
     st.markdown(r"Esta seção divide a análise em duas partes: a **Análise Assintótica**, que fornece a complexidade de alto nível, e a **Análise Concreta**, que explica o impacto real do `THRESHOLD`.")
     
     st.divider()
@@ -625,110 +729,6 @@ elif page == "3. Análise de Complexidade Teórica":
 #     st.markdown("**Conclusão Teórica:** Todos os algoritmos analisados possuem uma complexidade de tempo assintótica de $\Theta(n \log n)$.")
 
 
-
-####################################################################
-####################################################################
-
-elif page == "4. Resultados Visuais":
-    st.header("4. Resultados Visuais")
-    st.markdown("Os dados empíricos validam a nossa análise teórica.")
-    
-    if df_best is not None:
-        st.subheader("Análise Comparativa Final: Híbridos vs. Puro")
-        chart_comparison = create_comparison_chart(df_best)
-        st.altair_chart(chart_comparison, use_container_width=True)
-        st.markdown("""
-        **Análise:** Este gráfico compara o melhor desempenho de cada algoritmo:
-        - **Linha Azul (Merge+Insertion):** É o algoritmo mais rápido na prática.
-        - **Linha Laranja (Merge Puro):** É a nossa linha de base.
-        - **Linha Vermelha (Merge+Bubble):** É o algoritmo mais lento.
-        """)
-    else:
-        st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
-
-    st.subheader("Gráfico de Melhores Resultados e Desvio Padrão")
-    st.markdown("""
-    Os gráficos a seguir mostram a linha de desempenho do **melhor threshold** encontrado para cada `Tamanho`
-    e para cada **tipo** de algoritmo.
-    A **sombra** representa o **desvio padrão** (±) para essas execuções, indicando a consistência do teste.
-    *(Usamos uma escala logarítmica no eixo Y para melhor visualização.)*
-    """)
-    st.markdown("""
-    Os gráficos a seguir mostram o desempenho do **melhor threshold** encontrado para cada `Tamanho`.
-    Eles plotam tanto o **Tempo Real** (tempo de relógio) quanto o **Tempo de CPU** (tempo de processamento).
-    A **sombra** representa o **desvio padrão** (±) para essas execuções.
-    """)
-
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        if df_bubble is not None:
-            chart_merge = create_result_individual_chart(df_final_merge, "Merge (Melhor Média ± Desvio)")
-            st.altair_chart(chart_merge, use_container_width=True)
-    with col2:
-        if df_insertion is not None:
-            chart_mergebubble = create_result_individual_chart(df_final_mergebubble, "Merge+Bubble (Melhor Média ± Desvio)")
-            st.altair_chart(chart_mergebubble, use_container_width=True)
-    with col3:
-        if df_bubble is not None:
-            chart_mergeinsertion = create_result_individual_chart(df_final_mergeinsertion, "Merge+Insertion (Melhor Média ± Desvio)")
-            st.altair_chart(chart_mergeinsertion, use_container_width=True)
-
-    
-
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("##### Merge")
-        if not df_final_merge.empty:
-            st.dataframe(df_final_merge, use_container_width=True)
-            st.caption("Menores tempos médios para cada tamanho de entrada.")
-        else:
-            st.warning("Dados de threshold do Merge Sort não puderam ser analisados.")
-    
-    with col2:
-        st.markdown("##### Híbrido: Merge + Bubble")
-        if not df_final_mergebubble.empty:
-            st.dataframe(df_final_mergebubble, use_container_width=True)
-            st.caption("Menores tempos médios para cada tamanho de entrada.")
-        else:
-            st.warning("Dados de threshold do Merge com Bubble Sort não puderam ser analisados.")
-    
-    with col3:
-        st.markdown("##### Híbrido: Merge + Insertion")
-        if not df_final_mergeinsertion.empty:
-            st.dataframe(df_final_mergeinsertion, use_container_width=True)
-            st.caption("Menores tempos médios para cada tamanho de entrada.")
-        else:
-            st.warning("Dados de threshold do Merge com Insertion Sort não puderam ser analisados.")
-
-    
-    
-    st.subheader("Análise: Tempo Real vs. Tempo de CPU")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("#### Tempo Real (Wall-Clock Time)")
-        st.markdown("""
-        Mede o **tempo total** que se passou no relógio, do início ao fim do teste. 
-        
-        * **O que inclui:** Tempo de processamento e tempo de espera (ex: I/O, outras tarefas do sistema operacional).
-        * **Função C:** `time()` (e `difftime()`)
-        """)
-        st.code("real_start = time(NULL);\n// ...código...\nreal_end = time(NULL);\nreal_time_used = difftime(real_end, real_start);", language="c")
-
-    with col2:
-        st.markdown("#### Tempo de CPU (Processador)")
-        st.markdown("""
-        Mede **apenas o tempo** em que o processador estava *ativamente* trabalhando no código.
-        
-        * **O que ignora:** Tempo em que o programa estava "parado" esperando o SO ou outros processos.
-        * **Função C:** `clock()`
-        """)
-        st.code("cpu_start = clock();\n// ...código...\ncpu_end = clock();\ncpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;", language="c")
-            
-    
 
 ####################################################################
 ####################################################################
