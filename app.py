@@ -31,7 +31,12 @@ def load_data():
         df_best = pd.read_csv("melhores_resultados_merge_hibridos.csv")
         df_bubble_raw = pd.read_csv("merge-bubble-raw_times.csv")
         df_insertion_raw = pd.read_csv("merge-insertion-raw_times.csv")
-        return df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw
+
+        df_final_merge = pd.read_csv("melhores_resultados_merge.csv")
+        df_final_mergebubble = pd.read_csv("melhores_resultados_mergebubble.csv")
+        df_final_mergeinsertion = pd.read_csv("melhores_resultados_mergeinsertion.csv")
+
+        return df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw, df_final_merge, df_final_mergebubble, df_final_mergeinsertion
     except FileNotFoundError as e:
         st.error(f"Erro ao carregar o arquivo: {e.filename}.")
         return None, None, None
@@ -125,44 +130,74 @@ def generate_theory_chart():
 ####################################################################
 ####################################################################
 
-def create_theory_chart(df_raw, title):
-    """Cria o gráfico de comparação do tempo real vs. complexidade teórica."""
+def create_result_individual_chart(df, title):
+    """
+    Cria um gráfico de Média ± Desvio Padrão para 
+    MediaReal e MediaCPU, usando o melhor threshold de MediaReal.
+    """
+    if df is None:
+        return alt.Chart(pd.DataFrame()).mark_text(text="Dados não carregados.")
+
+    # 1. Preparar DataFrames para Plotagem (Formato Longo)
+    # Criar um DF limpo para 'Tempo Real'
+    df_real = df[['Tamanho', 'MediaReal', 'DesvioReal']].copy()
+    df_real['Métrica'] = 'Tempo Real'
+    df_real = df_real.rename(columns={'MediaReal': 'Média', 'DesvioReal': 'Desvio'})
     
-    # 1. Processar: Agrupar por 'Tamanho' e pegar o menor tempo (melhor threshold)
-    df_agg = df_raw.groupby('Tamanho')['MediaReal'].min().reset_index()
-    df_agg = df_agg.rename(columns={'MediaReal': 'TempoRealMinimo'})
+    # Criar um DF limpo para 'Tempo CPU'
+    df_cpu = df[['Tamanho', 'MediaCPU', 'DesvioCPU']].copy()
+    df_cpu['Métrica'] = 'Tempo CPU'
+    df_cpu = df_cpu.rename(columns={'MediaCPU': 'Média', 'DesvioCPU': 'Desvio'})
 
-    # 2. Adicionar Funções Teóricas
-    df_agg['n'] = df_agg['Tamanho']
-    df_agg['n log n'] = df_agg['Tamanho'] * np.log(df_agg['Tamanho'])
+    # 2. Combinar os dois DFs
+    df_plot = pd.concat([df_real, df_cpu], ignore_index=True)
+    
+    # 3. Calcular Bandas de Erro (Sombra)
+    # Removido .clip() e .replace() - não são necessários para escala linear
+    df_plot['Tempo_Min'] = (df_plot['Média'] - df_plot['Desvio'])
+    df_plot['Tempo_Max'] = df_plot['Média'] + df_plot['Desvio']
 
-    # 3. Escalar Funções Teóricas
-    max_time = df_agg['TempoRealMinimo'].max()
-    df_agg['n log n'] = df_agg['n log n'].replace(0, 1e-9)
-
-    df_agg['n (escalado)'] = df_agg['n'] * (max_time / df_agg['n'].max())
-    df_agg['n log n (escalado)'] = df_agg['n log n'] * (max_time / df_agg['n log n'].max())
-
-    # 4. Preparar para o Gráfico (Melt)
-    df_melt = df_agg.melt(
-        id_vars=['Tamanho'],
-        # Removido 'n^2 (escalado)' da lista
-        value_vars=['TempoRealMinimo', 'n (escalado)', 'n log n (escalado)'],
-        var_name='Métrica',
-        value_name='Tempo (s)'
+    # 4. Criação do Gráfico
+    
+    # Gráfico base
+    base = alt.Chart(df_plot).encode(
+        # Eixo X Linear
+        x=alt.X('Tamanho', title='Tamanho da Entrada (n)', scale=alt.Scale(type="linear")),
+        
+        # Cor por Métrica (CPU vs Real)
+        color=alt.Color('Métrica', title='Métrica'), 
+        
+        # Tooltip para interatividade
+        tooltip=[
+            'Tamanho', 'Métrica',
+            alt.Tooltip('Média', format='.8f'),
+            alt.Tooltip('Desvio', title='Desvio Padrão', format='.8f')
+        ]
     )
-
-    # 5. Criar o Gráfico Altair
-    chart = alt.Chart(df_melt).mark_line(point=True).encode(
-        x=alt.X('Tamanho', title='Tamanho da Entrada (n)'),
-        y=alt.Y('Tempo (s)', title='Tempo de Execução (escalado)'),
-        color=alt.Color('Métrica', title='Métrica de Desempenho'),
-        tooltip=['Tamanho', 'Métrica', alt.Tooltip('Tempo (s)', format='.8f')]
-    ).properties(
+    
+    # Criar as "sombras" (Bandas de Erro)
+    error_band = base.mark_area(opacity=0.3).encode(
+        # --- MODIFICAÇÃO AQUI ---
+        # Eixo Y Linear (escala padrão, sem log)
+        y=alt.Y('Tempo_Min', 
+                title='Tempo de Execução (s) - Escala Linear'),
+        y2=alt.Y2('Tempo_Max')
+    )
+    
+    # Criar as linhas principais (Médias)
+    mean_line = base.mark_line(point=True).encode(
+        # --- MODIFICAÇÃO AQUI ---
+        # Eixo Y Linear (escala padrão, sem log)
+        y=alt.Y('Média') 
+    )
+    
+    # Combinar os gráficos (linha sobre a sombra) e aplicar o título
+    final_chart = (error_band + mean_line).properties(
         title=title
     ).interactive()
     
-    return chart
+    return final_chart
+    
 
 ####################################################################
 ####################################################################
@@ -242,7 +277,11 @@ def create_comparison_chart(df_raw):
 ###################################################################
 
 # --- Carregamento Principal ---
-df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw = load_data()
+
+# Carrego todos os csv
+df_bubble, df_insertion, df_best, df_bubble_raw, df_insertion_raw, df_final_merge, df_final_mergebubble, df_final_mergeinsertion = load_data()
+
+# Carrego os códigos .c
 code_merge4 = load_code('merge4_final.c')
 code_merge5 = load_code('merge5_final.c')
 code_best_merge = load_code('process_best_merge_results.c')
@@ -468,19 +507,37 @@ elif page == "4. Resultados Visuais (Gráficos)":
     else:
         st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
 
-    # st.subheader("Verificação de Complexidade (Gráficos de Teoria)")
-    # st.markdown("Os gráficos abaixo confirmam que o desempenho real (TempoRealMinimo) segue a curva $\Theta(n \log n)$, e não $\Theta(n)$.")
+    st.subheader("Gráfico de Melhores Resultados e Desvio Padrão")
+    st.markdown("""
+    Os gráficos a seguir mostram a linha de desempenho do **melhor threshold** encontrado para cada `Tamanho`
+    e para cada **tipo** de algoritmo.
+    A **sombra** representa o **desvio padrão** (±) para essas execuções, indicando a consistência do teste.
+    *(Usamos uma escala logarítmica no eixo Y para melhor visualização.)*
+    """)
 
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     if df_bubble is not None:
-    #         chart_bubble = create_theory_chart(df_bubble, "Desempenho: Merge+Bubble vs. Teoria")
-    #         st.altair_chart(chart_bubble, use_container_width=True)
-    # with col2:
-    #     if df_insertion is not None:
-    #         chart_insertion = create_theory_chart(df_insertion, "Desempenho: Merge+Insertion vs. Teoria")
-    #         st.altair_chart(chart_insertion, use_container_width=True)
+    st.subheader("Gráfico de Desempenho (Tempo Real vs. CPU) com Desvio Padrão")
+    st.markdown("""
+    Os gráficos a seguir mostram o desempenho do **melhor threshold** encontrado para cada `Tamanho`.
+    Eles plotam tanto o **Tempo Real** (tempo de relógio) quanto o **Tempo de CPU** (tempo de processamento).
+    A **sombra** representa o **desvio padrão** (±) para essas execuções.
+    """)
 
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if df_bubble is not None:
+            chart_merge = create_result_individual_chart(df_final_merge, "Merge (Melhor Média ± Desvio)")
+            st.altair_chart(chart_merge, use_container_width=True)
+    with col2:
+        if df_insertion is not None:
+            chart_mergebubble = create_result_individual_chart(df_final_mergebubble, "Merge+Bubble (Melhor Média ± Desvio)")
+            st.altair_chart(chart_mergebubble, use_container_width=True)
+    with col3:
+        if df_bubble is not None:
+            chart_mergeinsertion = create_result_individual_chart(df_final_mergeinsertion, "Merge+Insertion (Melhor Média ± Desvio)")
+            st.altair_chart(chart_mergeinsertion, use_container_width=True)
+            
+    
 
 ####################################################################
 ####################################################################
