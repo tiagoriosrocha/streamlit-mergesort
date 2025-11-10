@@ -734,7 +734,14 @@ elif page == "4. Análise de Complexidade Teórica":
     
     1.  **Custo dos Merges (Níveis Superiores):** O custo de todas as mesclagens até o `THRESHOLD` $k$.
         *Custo* = $c_1 n \times \log_2(n/k)$
+    """)
+
+    st.markdown(r"""
+    No **híbrido (Merge + Insertion)**, a recursão **para quando o tamanho chega a** $k$. Ou seja, a árvore **não tem altura** $\log_2 n$, **mas sim** $\log_2 (n/k)$.
     
+    """)
+
+    st.markdown(r"""
     2.  **Custo dos Casos Base (Folhas):** O número de "folhas" (sub-arrays de tamanho $k$) é $(n/k)$. O custo para ordenar cada uma é $c_2 k^2$. O custo total é:
     """)
     
