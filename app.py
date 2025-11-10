@@ -53,18 +53,6 @@ def load_code(file_path):
     except FileNotFoundError:
         return f"Erro: Arquivo {file_path} não encontrado."
 
-####################################################################
-####################################################################
-
-def extract_function(code, function_name):
-    """Extrai uma função específica do código C para exibição."""
-    try:
-        match = re.search(r'void\s+' + re.escape(function_name) + r'\s*\([^\)]*\)\s*\{[^\}]*\}', code, re.S)
-        if match:
-            return match.group(0)
-        return f"Função {function_name} não encontrada."
-    except Exception:
-        return "Erro ao processar o código."
 
 ####################################################################
 ####################################################################
@@ -389,7 +377,25 @@ elif page == "1. Fundamentos (Algoritmos Base)":
         - **Complexidade Teórica:** $\Theta(n \log n)$ em todos os casos.
         - **Problema:** A recursão tem um "custo" (overhead) que pode ser ineficiente para arrays muito pequenos.
         """)
-        st.code(extract_function(code_merge4, "mergeSort"), language='c')
+
+        codigo_merge = """
+        // Função principal de ordenação recursiva
+        void mergeSort(int *vetor, int inicio, int fim)
+        {
+            if (inicio < fim)
+            {
+                int meio = inicio + (fim - inicio) / 2;
+
+                // Divide o vetor em duas metades
+                mergeSort(vetor, inicio, meio);
+                mergeSort(vetor, meio + 1, fim);
+
+                // Combina as duas metades ordenadas
+                combinarMetades(vetor, inicio, meio, fim);
+            }
+        }
+        """
+        st.code(codigo_merge, language='c')
         
     with tab2:
         st.subheader("Bubble Sort")    
@@ -397,7 +403,31 @@ elif page == "1. Fundamentos (Algoritmos Base)":
         - **Conceito:** Um algoritmo de ordenação quadrático simples ($\Theta(n^2)$).
         - **Como funciona:** Compara repetidamente elementos adjacentes e os troca se estiverem na ordem errada.
         """)
-        st.code(extract_function(code_merge4, "bubbleSort"), language='c')
+
+        codigo_bubble = """
+        // Bubble Sort para ordenar um vetor entre as posições inicio e fim
+        void bubbleSort(int *vetor, int inicio, int fim)
+        {
+            for (int i = inicio; i < fim; i++)
+            {
+                // A cada passagem, o maior elemento "bolha" para o final do vetor
+                for (int j = inicio; j < fim - (i - inicio); j++)
+                {
+                    int elementoAtual = vetor[j];
+                    int proximoElemento = vetor[j + 1];
+
+                    // Se o elemento atual for maior que o próximo, troca as posições
+                    if (elementoAtual > proximoElemento)
+                    {
+                        vetor[j] = proximoElemento;
+                        vetor[j + 1] = elementoAtual;
+                    }
+                }
+            }
+        }
+        """
+
+        st.code(codigo_bubble, language='c')
 
     with tab3:
         st.subheader("Insertion Sort")
@@ -405,7 +435,30 @@ elif page == "1. Fundamentos (Algoritmos Base)":
         - **Conceito:** Outro algoritmo quadrático ($\Theta(n^2)$).
         - **Característica Especial:** Extremamente rápido para arrays pequenos e arrays "quase ordenados".
         """)
-        st.code(extract_function(code_merge5, "insertionSort"), language='c')
+
+        codigo_insertion = """
+        // Insertion Sort para ordenar uma parte do vetor (de inicio até fim)
+        void insertionSort(int *vetor, int inicio, int fim)
+        {
+            for (int i = inicio + 1; i <= fim; i++)
+            {
+                int elementoAtual = vetor[i];     // valor que queremos posicionar corretamente
+                int posicaoAnterior = i - 1;      // começa comparando com o elemento anterior
+
+                // Move os elementos maiores que elementoAtual uma posição à frente
+                while (posicaoAnterior >= inicio && vetor[posicaoAnterior] > elementoAtual)
+                {
+                    vetor[posicaoAnterior + 1] = vetor[posicaoAnterior];
+                    posicaoAnterior--;
+                }
+
+                // Insere o elemento na posição correta
+                vetor[posicaoAnterior + 1] = elementoAtual;
+            }
+        }
+        """
+
+        st.code(codigo_insertion, language='c')
 
 ####################################################################
 ####################################################################
