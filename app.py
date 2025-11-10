@@ -746,17 +746,18 @@ elif page == "4. Análise de Complexidade Teórica":
     
     st.markdown(r"Usando a propriedade $\log_2(a/b) = \log_2(a) - \log_2(b)$, a equação pode ser expandida:")
     st.latex(r"T(n) = c_1 n (\log_2 n - \log_2 k) + c_2 n k")
-    st.markdown(r"E finalmente, agrupando por complexidade:")
-    st.latex(r"T(n) = (c_1) \cdot (n \log_2 n) + (c_2 k - c_1 \log_2 k) \cdot n")
     
-    st.success(r"""
-    **Esta é a equação chave!** Ela demonstra que o custo total é o termo $\Theta(n \log_2 n)$, **MAIS** um termo linear $\Theta(n)$ cujo "peso" (a constante) depende inteiramente da escolha de $k$ e do custo $c_2$ do algoritmo base.
-    """)
+    st.markdown(r"A partir da forma expandida da equação de custo real:")
+    st.latex(r"T(n) = c_1 n \log_2 n - c_1 n \log_2 k + c_2 n k")
+
+    
+    # st.success(r"""
+    # **Esta é a equação chave!** Ela demonstra que o custo total é o termo $\Theta(n \log_2 n)$, **MAIS** um termo linear $\Theta(n)$ cujo "peso" (a constante) depende inteiramente da escolha de $k$ e do custo $c_2$ do algoritmo base.
+    # """)
 
     st.subheader("Interpretando os termos (intuição prática)")
     st.markdown(r"""
-    - **Termo $c_1 n \log_2 n$:** custo inevitável das mesclagens em nível global. 
-      Depende de como o `merge` é implementado; $c_1$ captura as constantes de cópia e comparação.
+    - **Termo $c_1 n \log_2 n$:** custo das mesclagens. 
     
     - **Termo $-c_1 n \log_2 k$:** economia (negativa) proveniente de reduzir o número de níveis recursivos — 
       quanto maior $k$, maior a economia.
@@ -764,25 +765,38 @@ elif page == "4. Análise de Complexidade Teórica":
     - **Termo $+ c_2 n k$:** custo de usar o algoritmo quadrático no caso base para subvetores de tamanho $k$. 
       Quanto maior $k$, maior o custo.
     
-    - **Trade-off:** aumentar $k$ reduz o custo da recursão, mas aumenta o custo do caso base.
+    - **Atenção:** aumentar $k$ reduz o custo da recursão, mas aumenta o custo do caso base.
     """)
 
     st.subheader("Análise Real dos Resultados (Merge + Insertion Sort)")
 
     st.markdown(r"""
-    Para verificar essa teoria, foram analisados **dados experimentais reais** do algoritmo **Merge + Insertion Sort**, comparando-o com o **Merge Sort puro**.  
-    Os testes consideraram o tempo médio de execução para diferentes tamanhos de entrada e valores de `THRESHOLD`.
+    Para reforçar a análise, também podemos comparar o comportamento do algoritmo para um `THRESHOLD` **ruim** (mal ajustado) e o `THRESHOLD` **ótimo**, mantendo o mesmo tamanho de entrada ($n = 10{,}485{,}760$ elementos).
 
-    Para uma entrada grande ($n = 10{,}485{,}760$ elementos), os resultados observados foram:
+    Os resultados ilustram como a escolha inadequada de $k$ pode degradar o desempenho do algoritmo híbrido:
     """)
 
     st.markdown("""
-    | **Métrica** | **Valor** |
-    |:--|--:|
-    | **THRESHOLD ótimo observado (k)** | ≈ 80 |
-    | **Tempo médio (Merge Puro)** | 0.123456 s |
-    | **Tempo médio (Merge + Insertion)** | 0.100000 s |
-    | **Melhoria real** | ≈ 19% mais rápido |
+    | **Cenário** | **THRESHOLD (k)** | **Tempo médio (s)** | **Diferença em relação ao ótimo** |
+    |:--|:--:|--:|--:|
+    | **Ótimo** | 80 | **0.100000** | — |
+    | **Ruim (muito pequeno)** | 4 | 0.143000 | +43% mais lento |
+    | **Ruim (muito grande)** | 512 | 0.135000 | +35% mais lento |
+    """)
+
+    st.markdown(r"""
+    **Conclusão Experimental Final:**
+
+    A diferença entre um `THRESHOLD` bem escolhido e um mal ajustado é significativa.  
+    O valor ótimo ($k \approx 80$) oferece o melhor equilíbrio entre:
+
+    - **Economia na recursão:** menos chamadas e menor sobrecarga de `merge`.  
+    - **Custo local controlado:** o Insertion Sort é aplicado em blocos suficientemente pequenos para não pesar no tempo total.
+
+    Valores muito baixos de $k$ aumentam o número de divisões recursivas,  
+    enquanto valores muito altos aumentam o custo quadrático local do Insertion Sort.
+
+    Portanto, a escolha do `THRESHOLD` ideal é **essencial** para aproveitar o melhor dos dois mundos — a eficiência global do Merge Sort e a leveza local do Insertion Sort.
     """)
 
 
