@@ -300,6 +300,7 @@ page = st.sidebar.radio("Ir para:", [
     "3. Resultados Visuais",
     "4. Análise de Complexidade Teórica",
     "5. Conclusões",
+    "6. Referências Bibliográficas",
     "Apêndice: Códigos-Fonte (.c)",
     "Apêndice: Dados Brutos (.csv)"
 ])
@@ -373,8 +374,8 @@ elif page == "1. Fundamentos (Algoritmos Base)":
     with tab1:
         st.subheader("Merge Sort")    
         st.markdown("""
-        - **Conceito:** Um algoritmo clássico de "Divisão e Conquista".
-        - **Complexidade Teórica:** $\Theta(n \log n)$ em todos os casos.
+        - **Conceito:** Segue a estratégia dividir para conquistar (divide and conquer): divide o vetor ao meio, ordena cada parte recursivamente e depois mescla as partes ordenadas.
+        - **Complexidade Teórica:** $O(n \log n)$.
         - **Problema:** A recursão tem um "custo" (overhead) que pode ser ineficiente para arrays muito pequenos.
         """)
 
@@ -400,7 +401,8 @@ elif page == "1. Fundamentos (Algoritmos Base)":
     with tab2:
         st.subheader("Bubble Sort")    
         st.markdown("""
-        - **Conceito:** Um algoritmo de ordenação quadrático simples ($\Theta(n^2)$).
+        - **Conceito:** Percorre o vetor várias vezes, trocando elementos adjacentes que estão na ordem errada — o maior “sobe” para o final, como uma bolha.
+        - **Complexidade:** Algoritmo quadrático ($O(n^2)$).
         - **Como funciona:** Compara repetidamente elementos adjacentes e os troca se estiverem na ordem errada.
         """)
 
@@ -432,7 +434,8 @@ elif page == "1. Fundamentos (Algoritmos Base)":
     with tab3:
         st.subheader("Insertion Sort")
         st.markdown("""
-        - **Conceito:** Outro algoritmo quadrático ($\Theta(n^2)$).
+        - **Conceito:** Constrói o vetor ordenado inserindo cada elemento na posição correta, um por um — como quando organizamos cartas na mão.
+        - **Complexidade:** Algoritmo quadrático ($O(n^2)$).
         - **Característica Especial:** Extremamente rápido para arrays pequenos e arrays "quase ordenados".
         """)
 
@@ -830,6 +833,19 @@ elif page == "5. Conclusões":
     # **Em resumo:** O Insertion Sort é uma escolha vastamente superior para o caso base, pois sua baixa sobrecarga o torna viável para otimizar listas de tamanhos muito maiores.
     # """)           
     
+
+####################################################################
+####################################################################
+
+
+elif page == "6. Referências Bibliográficas":
+    st.header("6. Referências Bibliográficas")
+    st.markdown("""
+    1. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). Introduction to Algorithms (3rd ed.). MIT Press.
+    2. Knuth, D. E. (1998). The Art of Computer Programming, Volume 3: Sorting and Searching (2nd ed.). Addison-Wesley.
+    """)
+
+
 
 ####################################################################
 ####################################################################
