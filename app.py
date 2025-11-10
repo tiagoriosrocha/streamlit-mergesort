@@ -796,7 +796,6 @@ elif page == "5. Conclusões":
     2.  **Teoria Validada:** Todos os algoritmos (Puro e Híbridos) têm uma complexidade assintótica de **$\Theta(n \log n)$**, como provado pela teoria e validado pelos gráficos de desempenho.
     3.  **Otimização Funciona (às vezes):** A hibridização é uma otimização de *fator constante*. A escolha do algoritmo para o caso base é crucial.
     4.  **O Vencedor:** O híbrido **Merge Sort + Insertion Sort (`merge5.c`)** provou ser uma otimização bem-sucedida, superando o desempenho do Merge Sort Puro.
-    5.  **O Perdedor:** O híbrido **Merge Sort + Bubble Sort (`merge4.c`)** foi ineficaz, sendo consistentemente mais lento que a versão original pura.
     """)
 
     st.subheader("Análise do Threshold Ideal")
@@ -815,17 +814,17 @@ elif page == "5. Conclusões":
         
         * **Por quê? Baixa Sobrecarga:** Ele possui loops muito simples e "desliza" os elementos para sua posição com poucas operações.
         
-        * **Ponto de Virada:** Por ser tão eficiente, ele continua sendo mais rápido que a *sobrecarga da recursão* do Merge Sort por mais tempo. Nossos testes mostram que o custo da recursão só supera o custo do Insertion Sort quando as listas atingem um tamanho considerável (ex: `n` entre 70 e 100).
+        * **Ponto de Virada:** Por ser tão eficiente, ele continua sendo mais rápido que a *sobrecarga da recursão* do Merge Sort por mais tempo. Os testes mostram que o custo da recursão só supera o custo do Insertion Sort quando as listas atingem um tamanho de `n` entre 70 e 100).
         """)
 
     with col2:
         st.markdown("#### Merge + Bubble Sort (Thresholds Baixos: ~8)")
         st.markdown("""
-        O **Bubble Sort** ($\Theta(n^2)$) também é assintoticamente mais lento, mas sua performance no mundo real é drasticamente pior que a do Insertion Sort.
+        O **Bubble Sort** ($\Theta(n^2)$) também é assintoticamente mais lento. Sua performance foi pior que a do Insertion Sort.
         
         * **Por quê? Alta Sobrecarga:** Ele é notoriamente ineficiente, realizando um número massivo de trocas (swaps) e comparações desnecessárias.
         
-        * **Ponto de Virada:** Ele se torna *lento* muito rapidamente. Nossos testes mostram que para listas maiores que `n \approx 8`, o custo de rodar o Bubble Sort já é *maior* do que o custo de continuar a recursão do Merge Sort.
+        * **Ponto de Virada:** Ele se torna *lento* muito rapidamente. Para listas maiores que `n \approx 8`, o custo de rodar o Bubble Sort já é *maior* do que o custo de continuar a recursão do Merge Sort.
         """)
 
     # st.markdown("---")
