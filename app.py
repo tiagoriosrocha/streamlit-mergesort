@@ -324,11 +324,11 @@ if page == "Apresentação":
     st.divider()
     st.subheader("Objetivo da Análise")
     st.markdown("""
-    Bem-vindos. Esta apresentação investiga um problema clássico na otimização de algoritmos: o **custo da recursão**.
+    Estre trabalho investiga um problema clássico na otimização de algoritmos: o **custo da recursão**.
 
     O Merge Sort é mundialmente famoso por sua excelente complexidade teórica de $\Theta(n \log n)$. No entanto, o *overhead* (custo computacional) de suas chamadas de função pode ser ineficiente para ordenar sub-arrays muito pequenos.
 
-    **A hipótese deste trabalho é que podemos obter um ganho de desempenho prático ao criar um algoritmo híbrido.**
+    **A hipótese deste trabalho é que pode-se obter um ganho de desempenho prático ao criar um algoritmo híbrido.**
     
     A estratégia é parar a recursão quando o array for pequeno o suficiente (definido por um `THRESHOLD`) e usar um algoritmo quadrático mais simples, como o Insertion Sort ou o Bubble Sort, para finalizar o trabalho.
     """)    
