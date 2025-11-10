@@ -529,14 +529,6 @@ elif page == "2. Metodologia Experimental":
     """
     st.code(codigo_entradas, language='c')
 
-    st.markdown(r"""
-    * **Elementos do Vetor (Reprodutibilidade):**
-    Este é um ponto crucial da metodologia. Para garantir a **reprodutibilidade** do experimento, a semente do gerador de números aleatórios foi fixada em `42` no início de cada teste de `Tamanho` (n):
-    """)
-
-    st.code("srand(42); // Semente para reprodutibilidade", language="c")
-
-
     codig_threashold = """
     #define NUM_THRESHOLDS 23 //quantidade de thresholds testados
     int thresholds[NUM_THRESHOLDS] = {-1, 100, 90, 80, 70, 60, 50, 40, 30, 28,
@@ -549,6 +541,14 @@ elif page == "2. Metodologia Experimental":
     """)
 
     st.code(codig_threashold, language='c')
+
+    st.markdown(r"""
+    * **Elementos do Vetor (Reprodutibilidade):**
+    Este é um ponto crucial da metodologia. Para garantir a **reprodutibilidade** do experimento, a semente do gerador de números aleatórios foi fixada em `42` no início de cada teste de `Tamanho` (n):
+    """)
+
+    st.code("srand(42); // Semente para reprodutibilidade", language="c")
+
 
     st.divider()
 
