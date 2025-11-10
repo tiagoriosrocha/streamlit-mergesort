@@ -498,6 +498,49 @@ elif page == "2. Metodologia Experimental":
     """, language='c')
     
     st.divider()
+
+
+    st.subheader("Configuração do Benchmark (Entradas e Parâmetros)")
+    st.markdown(r"""
+    Para realizar uma análise justa e abrangente, os testes foram configurados da seguinte maneira:
+
+    * **Tamanho da Entrada (n):**
+    Para analisar o desempenho em diferentes ordens de magnitude, foram definidos **30 tamanhos de entrada** (`Tamanho`). Os testes começaram com vetores muito pequenos (ex: `n=3`, `n=5`) e cresceram exponencialmente (aproximadamente potências de 2) até entradas massivas de `n = 1.342.177.280` (1.34 Bilhões de elementos).
+    """)
+    codigo_entradas = """
+    #define NUM_SIZES 30 //quantidade de itens
+    int sizes[NUM_SIZES] = {3, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120,
+                        10240, 20480, 40960, 81920, 163840, 327680,
+                        655360, 1310720, 2621440, 5242880,
+                        10485760, 20971520, 41943040, 83886080,
+                        167772160, 335544320, 671088640, 1342177280};
+    """
+    st.code(codigo_entradas, language='c')
+
+    st.markdown(r"""
+    * **Elementos do Vetor (Reprodutibilidade):**
+    Este é um ponto crucial da metodologia. Para garantir a **reprodutibilidade** do experimento, a semente do gerador de números aleatórios foi fixada em `42` no início de cada teste de `Tamanho` (n):
+    """)
+
+    st.code("srand(42); // Semente para reprodutibilidade", language="c")
+
+
+    codig_threashold = """
+    #define NUM_THRESHOLDS 23 //quantidade de thresholds testados
+    int thresholds[NUM_THRESHOLDS] = {-1, 100, 90, 80, 70, 60, 50, 40, 30, 28,
+                                      26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2};
+    """ 
+
+    st.markdown(r"""
+    * **Thresholds (k):**
+    Para encontrar o "ponto de equilíbrio" ideal, um conjunto abrangente de valores de `THRESHOLD` (k) foi testado (ex: `k=100`, `k=90`...`k=2`). Um valor especial, `THRESHOLD = -1`, foi usado para representar a implementação do **Merge Sort Puro** (onde a recursão vai até `n=1`), servindo como a principal linha de base (baseline) para a comparação de desempenho.
+    """)
+
+    st.code(codig_threashold, language='c')
+
+    st.divider()
+
+
     st.subheader("Execução dos Testes e Coleta de Dados")
     st.markdown("""
     Para garantir a confiabilidade estatística dos resultados, cada algoritmo foi submetido a um rigoroso processo de benchmarking. A análise dos arquivos `raw_times.csv` revela uma metodologia adaptativa:
