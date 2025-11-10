@@ -778,32 +778,36 @@ elif page == "4. Análise de Complexidade Teórica":
     st.subheader("Análise Real dos Resultados (Merge + Insertion Sort)")
 
     st.markdown(r"""
-    Para reforçar a análise, também podemos comparar o comportamento do algoritmo para um `THRESHOLD` **ruim** (mal ajustado) e o `THRESHOLD` **ótimo**, mantendo o mesmo tamanho de entrada ($n = 10{,}485{,}760$ elementos).
+    Para verificar essa teoria, foram analisados **dados experimentais reais** do algoritmo **Merge + Insertion Sort**, comparando-o com o **Merge Sort puro**.  
+    Os testes consideraram o tempo médio de execução para diferentes tamanhos de entrada e valores de `THRESHOLD`.
 
-    Os resultados ilustram como a escolha inadequada de $k$ pode degradar o desempenho do algoritmo híbrido:
+    Para uma entrada grande ($n = 10{,}485{,}760$ elementos), os resultados observados na planilha real foram:
     """)
 
     st.markdown("""
     | **Cenário** | **THRESHOLD (k)** | **Tempo médio (s)** | **Diferença em relação ao ótimo** |
     |:--|:--:|--:|--:|
-    | **Ótimo** | 80 | **0.100000** | — |
-    | **Ruim (muito pequeno)** | 4 | 0.143000 | +43% mais lento |
-    | **Ruim (muito grande)** | 512 | 0.135000 | +35% mais lento |
+    | **Ótimo** | 100 | **0.6678** | — |
+    | **Ruim (muito pequeno)** | 4 | 0.7379 | +10% mais lento |
+    | **Ruim (muito grande)** | 1000 | 0.8880 | +33% mais lento |
+    | **Merge Puro** | -1 | 0.7539 | +13% mais lento |
     """)
 
     st.markdown(r"""
     **Conclusão Experimental Final:**
 
-    A diferença entre um `THRESHOLD` bem escolhido e um mal ajustado é significativa.  
-    O valor ótimo ($k \approx 80$) oferece o melhor equilíbrio entre:
+    O **THRESHOLD ótimo** observado foi **k = 100**, com tempo médio **0.6678 s**, o melhor resultado entre todas as configurações testadas.  
+    Isso confirma que o híbrido **Merge + Insertion Sort** oferece desempenho superior ao Merge puro para entradas grandes.
 
-    - **Economia na recursão:** menos chamadas e menor sobrecarga de `merge`.  
-    - **Custo local controlado:** o Insertion Sort é aplicado em blocos suficientemente pequenos para não pesar no tempo total.
+    - Thresholds **muito pequenos (ex: k=4)** aumentam o número de chamadas recursivas, resultando em **≈10% de perda de desempenho**.  
+    - Thresholds **muito grandes (ex: k ≥ 512 ou 1000)** reduzem o número de merges, mas aumentam o custo quadrático local do Insertion Sort, com **≈33% de perda**.  
+    - O **Merge puro (k = -1)** tem desempenho intermediário (**≈13% mais lento**) em relação ao ótimo.
 
-    Valores muito baixos de $k$ aumentam o número de divisões recursivas,  
-    enquanto valores muito altos aumentam o custo quadrático local do Insertion Sort.
+    O ponto ótimo representa o **melhor equilíbrio prático** entre:
+    - o custo global das mesclagens ($c_1 n \log_2 (n/k)$), e  
+    - o custo local do Insertion Sort ($c_2 n k$).  
 
-    Portanto, a escolha do `THRESHOLD` ideal é **essencial** para aproveitar o melhor dos dois mundos — a eficiência global do Merge Sort e a leveza local do Insertion Sort.
+    Dessa forma, o ajuste correto de `THRESHOLD` é **fundamental** para obter o desempenho máximo do algoritmo híbrido.
     """)
 
 
