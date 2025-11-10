@@ -600,9 +600,9 @@ elif page == "3. Resultados Visuais":
         st.altair_chart(chart_comparison, use_container_width=True)
         st.markdown("""
         **Análise:** Este gráfico compara o melhor desempenho de cada algoritmo:
-        - **Linha Azul (Merge+Insertion):** É o algoritmo mais rápido na prática.
-        - **Linha Laranja (Merge Puro):** É a nossa linha de base.
-        - **Linha Vermelha (Merge+Bubble):** É o algoritmo mais lento.
+        - Linha Azul (Merge+Insertion).
+        - Linha Laranja (Merge Puro).
+        - Linha Vermelha (Merge+Bubble).
         """)
     else:
         st.warning("Arquivo 'melhores_resultados_merge_hibridos.csv' não encontrado.")
@@ -612,7 +612,6 @@ elif page == "3. Resultados Visuais":
     Os gráficos a seguir mostram a linha de desempenho do **melhor threshold** encontrado para cada `Tamanho`
     e para cada **tipo** de algoritmo.
     A **sombra** representa o **desvio padrão** (±) para essas execuções, indicando a consistência do teste.
-    *(Usamos uma escala logarítmica no eixo Y para melhor visualização.)*
     """)
     st.markdown("""
     Os gráficos a seguir mostram o desempenho do **melhor threshold** encontrado para cada `Tamanho`.
