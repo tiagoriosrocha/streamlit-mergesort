@@ -512,10 +512,22 @@ elif page == "2. Metodologia Experimental":
     """)
     
     st.markdown(r"""
-    * **Média (MediaCPU, MediaReal):** O tempo médio de execução das corridas (10 ou 50). Esta é a métrica central usada para comparar o desempenho.
-        $$\text{Média} = \frac{\sum_{i=1}^{N} \text{Tempo}_i}{N} \quad (N=10 \text{ ou } 50)$$
-    * **Desvio Padrão (DesvioCPU, DesvioReal):** Mede a *variabilidade* ou *dispersão* dos tempos. Um desvio padrão baixo (próximo de zero), como os observados nos dados, indica que os resultados das execuções foram muito consistentes e confiáveis.
-    
+    * **Média (MediaCPU, MediaReal):** O tempo médio de execução das corridas (10 ou 50).  
+    Esta é a métrica central usada para comparar o desempenho.
+    $$
+    \text{Média} = \frac{\sum_{i=1}^{N} \text{Tempo}_i}{N} 
+    \quad (N = 10 \text{ ou } 50)
+    $$
+
+    * **Desvio Padrão (DesvioCPU, DesvioReal):** Mede a *variabilidade* ou *dispersão* dos tempos.  
+    Um desvio padrão baixo (próximo de zero), como os observados nos dados, indica que os resultados das execuções foram muito consistentes e confiáveis.
+    $$
+    \text{Desvio Padrão} = 
+    \sqrt{
+        \frac{\sum_{i=1}^{N} (\text{Tempo}_i - \text{Média})^2}{N}
+    }
+    $$
+
     Os gráficos nas seções seguintes utilizam a **menor média** (`MediaReal.min()`) encontrada para cada `Tamanho`, representando o desempenho ótimo do algoritmo (ou seja, o melhor `Threshold` para aquele `Tamanho`).
     """)
 
