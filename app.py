@@ -480,18 +480,30 @@ elif page == "2. Metodologia Experimental":
     - **Se `n <= THRESHOLD`:** O algoritmo para de recorrer e ordena o sub-array pequeno usando o método quadrático.
     """)
     
-    st.subheader("Lógica de Hibridização no Código (merge5_final.c)")
+    st.subheader("Lógica de Hibridização no Código")
     st.code("""
-    void mergeSort(int arr[], int l, int r, int THRESHOLD) {
-        if (l < r) {
-            // Condição de Hibridização
-            if (r - l + 1 <= THRESHOLD) {
-                insertionSort(arr, l, r); // Caso Base Otimizado
-            } else {
-                int m = l + (r - l) / 2;
-                mergeSort(arr, l, m, THRESHOLD);
-                mergeSort(arr, m + 1, r, THRESHOLD);
-                merge(arr, l, m, r);
+    // Merge Sort Híbrido: combina Merge Sort com Insertion Sort para subvetores pequenos
+    void mergeSort(int vetor[], int indiceInicio, int indiceFim, int THRESHOLD)
+    {
+        if (indiceInicio < indiceFim)
+        {
+            // Se o tamanho do subvetor for menor ou igual ao THRESHOLD,
+            // usa Insertion Sort (mais eficiente para poucos elementos)
+            if (indiceFim - indiceInicio + 1 <= THRESHOLD)
+            {
+                insertionSort(vetor, indiceInicio, indiceFim); // Caso base otimizado
+            }
+            else
+            {
+                // Encontra o ponto médio do vetor
+                int indiceMeio = indiceInicio + (indiceFim - indiceInicio) / 2;
+
+                // Ordena recursivamente as duas metades
+                mergeSort(vetor, indiceInicio, indiceMeio, THRESHOLD);
+                mergeSort(vetor, indiceMeio + 1, indiceFim, THRESHOLD);
+
+                // Combina (merge) as duas metades ordenadas
+                merge(vetor, indiceInicio, indiceMeio, indiceFim);
             }
         }
     }
