@@ -552,6 +552,30 @@ elif page == "2. Metodologia Experimental":
 
     st.divider()
 
+    st.subheader("Otimização da Recursão (Passagem por Índice)")
+
+    st.markdown(r"""
+    Uma otimização de implementação crucial, presente nos arquivos `.c` analisados, é a forma como a recursão de "Divisão e Conquista" é gerenciada.
+
+    Implementações ingênuas do Merge Sort podem alocar nova memória (ex: `malloc`) e copiar dados para criar dois novos "sub-arrays" *a cada* chamada recursiva. Esta sobrecarga de alocação e cópia de memória (`memcpy`) é computacionalmente cara e anula grande parte da eficiência do algoritmo.
+    """)
+
+    st.markdown(r"""
+    A implementação utilizada neste projeto evita essa isso. Em vez de criar novos arrays, a função `mergeSort` opera **no mesmo array original** em todas as chamadas.
+
+    Isso é alcançado passando-se **índices** (`l` para *left* e `r` para *right*) que definem os limites do sub-array que a função deve ordenar.
+    """)
+
+    st.code("void mergeSort(int arr[], int l, int r, int THRESHOLD)", language="c")
+
+    st.markdown(r"""
+    As chamadas recursivas simplesmente calculam um novo ponto médio (`m`) e passam novos índices (`l`, `m` e `m+1`, `r`), o que é uma operação de custo $O(1)$ (extremamente rápida).
+
+    A única alocação de memória significativa ocorre temporariamente dentro da função `merge()` (que é chamada *após* as chamadas recursivas), quando ela cria os arrays temporários `L` e `R` para mesclar as duas metades ordenadas. Isso reduz drasticamente o *overhead* total da recursão, tornando o algoritmo muito mais eficiente na prática.
+    """)
+
+    st.divider()
+
 
     st.subheader("Execução dos Testes e Coleta de Dados")
     st.markdown("""
@@ -584,6 +608,24 @@ elif page == "2. Metodologia Experimental":
     $$
 
     Os gráficos nas seções seguintes utilizam a **menor média** (`MediaReal.min()`) encontrada para cada `Tamanho`, representando o desempenho ótimo do algoritmo (ou seja, o melhor `Threshold` para aquele `Tamanho`).
+    """)
+
+    st.divider()
+
+    st.subheader("Ambiente de experimentação:")
+    st.markdown(r"""
+    **Distribuição:** Ubuntu 24.04.3 LTS 
+                
+    **Processador:** Intel® Core™ i7-14700KF  
+    **Núcleos físicos:** 20  
+    **Threads por núcleo:** 2  
+    **Total de CPUs lógicas:** 28  
+    **Frequência:** 800 MHz – 5.6 GHz
+                
+    **Memória total:** 16 GiB  
+    **Modelo da placa-mãe:** Z790 AORUS ELITE X AX  
+    
+    **Compilador:** gcc (Ubuntu 14.2.0-4ubuntu2~24.04) 14.2.0
     """)
 
 ####################################################################
